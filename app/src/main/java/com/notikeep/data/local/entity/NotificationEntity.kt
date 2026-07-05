@@ -1,0 +1,20 @@
+package com.notikeep.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+/** Room row for a captured notification. Indexed for grouping and time queries. */
+@Entity(
+    tableName = "notifications",
+    indices = [Index("packageName"), Index("postedAt")],
+)
+data class NotificationEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val packageName: String,
+    val appLabel: String,
+    val title: String,
+    val text: String,
+    val postedAt: Long,
+    val wasSilenced: Boolean,
+)
