@@ -25,6 +25,7 @@ class SettingsRepositoryImpl @Inject constructor(
             analyticsEnabled = prefs[Keys.ANALYTICS] ?: true,
             onboardingCompleted = prefs[Keys.ONBOARDING_DONE] ?: false,
             firstAccessGrantedAt = prefs[Keys.FIRST_ACCESS],
+            defaultRulesSeeded = prefs[Keys.DEFAULT_RULES_SEEDED] ?: false,
         )
     }
 
@@ -44,6 +45,9 @@ class SettingsRepositoryImpl @Inject constructor(
         if (prefs[Keys.FIRST_ACCESS] == null) prefs[Keys.FIRST_ACCESS] = atMillis
     }
 
+    override suspend fun setDefaultRulesSeeded(seeded: Boolean) =
+        edit { it[Keys.DEFAULT_RULES_SEEDED] = seeded }
+
     private suspend inline fun edit(crossinline block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
         dataStore.edit { block(it) }
     }
@@ -54,5 +58,6 @@ class SettingsRepositoryImpl @Inject constructor(
         val ANALYTICS = booleanPreferencesKey("analytics_enabled")
         val ONBOARDING_DONE = booleanPreferencesKey("onboarding_completed")
         val FIRST_ACCESS = longPreferencesKey("first_access_granted_at")
+        val DEFAULT_RULES_SEEDED = booleanPreferencesKey("default_rules_seeded")
     }
 }

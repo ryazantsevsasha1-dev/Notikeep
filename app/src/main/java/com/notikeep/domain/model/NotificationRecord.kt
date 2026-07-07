@@ -15,4 +15,8 @@ data class NotificationRecord(
     val postedAt: Long,
     /** True when this notification was silenced from the shade but still archived. */
     val wasSilenced: Boolean,
+    /** False until the user opens the app's notification list. */
+    val isRead: Boolean = false,
+    /** User-starred notification. */
+    val isFavorite: Boolean = false,
 )

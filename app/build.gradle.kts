@@ -79,6 +79,9 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
 
+    // Coil for async app-icon loading
+    implementation(libs.coil.compose)
+
     // Unit tests
     testImplementation(libs.junit)
     testImplementation(libs.turbine)

@@ -6,7 +6,6 @@
 
     <!-- Bottom navigation -->
     <string name="nav_archive">Архив</string>
-    <string name="nav_search">Поиск</string>
     <string name="nav_rules">Приложения</string>
     <string name="nav_settings">Настройки</string>
 </resources>

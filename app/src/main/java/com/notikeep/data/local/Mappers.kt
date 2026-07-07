@@ -13,6 +13,8 @@ fun NotificationEntity.toDomain() = NotificationRecord(
     text = text,
     postedAt = postedAt,
     wasSilenced = wasSilenced,
+    isRead = isRead,
+    isFavorite = isFavorite,
 )
 
 /** id defaults to 0 so Room autogenerates it on insert. */
@@ -24,6 +26,8 @@ fun NotificationRecord.toEntity() = NotificationEntity(
     text = text,
     postedAt = postedAt,
     wasSilenced = wasSilenced,
+    isRead = isRead,
+    isFavorite = isFavorite,
 )
 
 fun AppRuleEntity.toDomain() = AppRule(

@@ -19,4 +19,7 @@ interface SettingsRepository {
 
     /** Records the first grant timestamp once; later calls are ignored. */
     suspend fun markFirstAccessGranted(atMillis: Long)
+
+    /** Set once after the top-20 usage-based rules were seeded. */
+    suspend fun setDefaultRulesSeeded(seeded: Boolean)
 }

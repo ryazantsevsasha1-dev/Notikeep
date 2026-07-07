@@ -28,7 +28,9 @@ object DataModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): NotikeepDatabase =
-        Room.databaseBuilder(context, NotikeepDatabase::class.java, NotikeepDatabase.NAME).build()
+        Room.databaseBuilder(context, NotikeepDatabase::class.java, NotikeepDatabase.NAME)
+            .addMigrations(NotikeepDatabase.MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideNotificationDao(db: NotikeepDatabase): NotificationDao = db.notificationDao()

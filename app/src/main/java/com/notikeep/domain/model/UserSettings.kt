@@ -9,6 +9,8 @@ data class UserSettings(
     val onboardingCompleted: Boolean,
     /** Epoch millis when notification access was first granted, or null. */
     val firstAccessGrantedAt: Long?,
+    /** True once the top-20 most-used apps were auto-assigned the default rule. */
+    val defaultRulesSeeded: Boolean = false,
 ) {
     companion object {
         const val DEFAULT_RETENTION_DAYS = 30

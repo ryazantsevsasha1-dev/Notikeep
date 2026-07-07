@@ -15,6 +15,14 @@ object SystemSettings {
         )
     }
 
+    /** Special-access screen where the user grants PACKAGE_USAGE_STATS. */
+    fun openUsageAccess(context: Context) {
+        context.startActivity(
+            Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+    }
+
     fun requestIgnoreBatteryOptimization(context: Context) {
         val intent = Intent(
             Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,

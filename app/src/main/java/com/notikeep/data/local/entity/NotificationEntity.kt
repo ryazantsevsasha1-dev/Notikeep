@@ -17,4 +17,8 @@ data class NotificationEntity(
     val text: String,
     val postedAt: Long,
     val wasSilenced: Boolean,
+    /** Cleared when the user opens the per-app screen; drives unread badges. */
+    val isRead: Boolean = false,
+    /** User-starred notification. */
+    val isFavorite: Boolean = false,
 )
