@@ -3,12 +3,12 @@ package com.notikeep.presentation.rules
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.notikeep.data.service.InstalledApp
-import com.notikeep.data.service.InstalledAppsProvider
-import com.notikeep.data.service.UsageStatsProvider
+import com.notikeep.domain.model.InstalledApp
 import com.notikeep.domain.model.RuleState
 import com.notikeep.domain.port.Analytics
 import com.notikeep.domain.port.AnalyticsEvent
+import com.notikeep.domain.port.AppCatalog
+import com.notikeep.domain.port.AppUsageStats
 import com.notikeep.domain.repository.RuleRepository
 import com.notikeep.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,8 +44,8 @@ data class RulesUiState(
 @HiltViewModel
 class RulesViewModel @Inject constructor(
     private val ruleRepository: RuleRepository,
-    private val installedApps: InstalledAppsProvider,
-    private val usageStats: UsageStatsProvider,
+    private val installedApps: AppCatalog,
+    private val usageStats: AppUsageStats,
     private val settings: SettingsRepository,
     private val analytics: Analytics,
 ) : ViewModel() {
@@ -110,7 +110,16 @@ class RulesViewModel @Inject constructor(
         }
     }
 
-    fun setState(row: AppRuleRow, state: RuleState) {
+    /** "Save?" — the main toggle. Turning it back on restores shade visibility too. */
+    fun setSave(row: AppRuleRow, save: Boolean) =
+        setState(row, RuleState.from(save = save, notify = row.state.notifies || !save))
+
+    /** "Notify?" — the bell. Only meaningful while saving is on. */
+    fun setNotify(row: AppRuleRow, notify: Boolean) =
+        setState(row, RuleState.from(save = row.state.saves, notify = notify))
+
+    private fun setState(row: AppRuleRow, state: RuleState) {
+        if (state == row.state) return
         viewModelScope.launch {
             ruleRepository.setState(row.packageName, row.label, state)
             analytics.track(AnalyticsEvent.RuleChanged(state.name))

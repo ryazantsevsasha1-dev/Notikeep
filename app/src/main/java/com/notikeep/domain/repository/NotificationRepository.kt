@@ -21,8 +21,14 @@ interface NotificationRepository {
      */
     fun observeAppSummaries(from: Long? = null, to: Long? = null): Flow<List<AppArchiveSummary>>
 
+    /** Favorites tab: one row per app, starred notifications only. */
+    fun observeFavoriteAppSummaries(): Flow<List<AppArchiveSummary>>
+
     /** All notifications of one app, newest first. */
     fun observeByPackage(packageName: String): Flow<List<NotificationRecord>>
+
+    /** Starred notifications of one app, newest first. */
+    fun observeFavoritesByPackage(packageName: String): Flow<List<NotificationRecord>>
 
     /** Marks every notification of the app as read (clears the unread badge). */
     suspend fun markPackageRead(packageName: String)

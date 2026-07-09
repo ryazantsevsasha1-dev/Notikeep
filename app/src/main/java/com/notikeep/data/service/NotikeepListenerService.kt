@@ -7,6 +7,7 @@ import android.service.notification.StatusBarNotification
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.domain.repository.SettingsRepository
 import com.notikeep.domain.usecase.ApplyRuleUseCase
+import com.notikeep.domain.usecase.BackfillActiveNotificationsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -22,13 +23,34 @@ import javax.inject.Inject
 class NotikeepListenerService : NotificationListenerService() {
 
     @Inject lateinit var applyRule: ApplyRuleUseCase
+    @Inject lateinit var backfill: BackfillActiveNotificationsUseCase
     @Inject lateinit var settings: SettingsRepository
+    @Inject lateinit var connectionState: ListenerConnectionState
     @Inject lateinit var scope: CoroutineScope
 
     override fun onListenerConnected() {
+        connectionState.onConnected()
         // The user just granted access; remember when so the archive can honestly
         // explain that history starts now (RESEARCH.md, anti-pattern #1).
         scope.launch { settings.markFirstAccessGranted(System.currentTimeMillis()) }
+        backfillActiveNotifications()
+    }
+
+    override fun onListenerDisconnected() {
+        connectionState.onDisconnected()
+    }
+
+    /**
+     * Pick up everything already sitting in the shade so a fresh install (or a
+     * reconnect) starts with the notifications the user can currently see.
+     * Storage-level dedup keeps this idempotent; the shade is never touched.
+     */
+    private fun backfillActiveNotifications() {
+        val records = runCatching { activeNotifications.orEmpty().toList() }
+            .getOrDefault(emptyList())
+            .mapNotNull { it.toRecord() }
+        if (records.isEmpty()) return
+        scope.launch { backfill(records) }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {

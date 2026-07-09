@@ -10,6 +10,8 @@
     <!-- Special access: lets us sort the Apps tab by real usage frequency. Granted via system settings. -->
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <!-- Android 13+: required to show our own notifications (push campaigns, service alerts). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".NotikeepApp"
@@ -43,6 +45,17 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <!-- After an APK update the system may keep the grant but never rebind the
+             listener; this receiver restores the binding without waiting for the
+             user to open the app. -->
+        <receiver
+            android:name=".data.service.PackageReplacedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Core of the product: system binds this by name to deliver every notification. -->
         <service

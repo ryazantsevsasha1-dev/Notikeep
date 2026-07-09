@@ -4,6 +4,7 @@ import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Process
+import com.notikeep.domain.port.AppUsageStats
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,8 +20,8 @@ import javax.inject.Singleton
 @Singleton
 class UsageStatsProvider @Inject constructor(
     @ApplicationContext private val context: Context,
-) {
-    fun hasPermission(): Boolean {
+) : AppUsageStats {
+    override fun hasPermission(): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOps.checkOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
@@ -34,7 +35,7 @@ class UsageStatsProvider @Inject constructor(
      * Total foreground time per package over the last 30 days. Empty when the
      * permission is missing. Runs off the main thread: the underlying call is IPC.
      */
-    suspend fun foregroundTimeByPackage(): Map<String, Long> = withContext(Dispatchers.IO) {
+    override suspend fun foregroundTimeByPackage(): Map<String, Long> = withContext(Dispatchers.IO) {
         if (!hasPermission()) return@withContext emptyMap()
         val end = System.currentTimeMillis()
         val start = end - TimeUnit.DAYS.toMillis(30)

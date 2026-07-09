@@ -9,11 +9,10 @@ import com.notikeep.data.local.dao.AppRuleDao
 import com.notikeep.data.local.dao.NotificationDao
 import com.notikeep.data.local.entity.AppRuleEntity
 import com.notikeep.data.local.entity.NotificationEntity
-import com.notikeep.data.local.entity.NotificationFts
 
 @Database(
-    entities = [NotificationEntity::class, NotificationFts::class, AppRuleEntity::class],
-    version = 2,
+    entities = [NotificationEntity::class, AppRuleEntity::class],
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(NotikeepConverters::class)
@@ -29,6 +28,35 @@ abstract class NotikeepDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE notifications ADD COLUMN isRead INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE notifications ADD COLUMN isFavorite INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        /**
+         * v3: unique dedup index so backfilling active notifications is idempotent.
+         * Existing duplicates are collapsed first (keeping the oldest row) or the
+         * index creation would fail.
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    DELETE FROM notifications WHERE id NOT IN (
+                        SELECT MIN(id) FROM notifications
+                        GROUP BY packageName, postedAt, title, text
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_notifications_packageName_postedAt_title_text` " +
+                        "ON `notifications` (`packageName`, `postedAt`, `title`, `text`)",
+                )
+            }
+        }
+
+        /** v4: remove FTS as search moved to LIKE (better case/partial matching). */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS notifications_fts")
             }
         }
     }

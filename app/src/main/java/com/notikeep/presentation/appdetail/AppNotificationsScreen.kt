@@ -25,10 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.notikeep.R
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.presentation.common.AppIconImage
 import com.notikeep.presentation.common.formatTimestamp
@@ -50,7 +52,7 @@ fun AppNotificationsScreen(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.appdetail_back))
                     }
                 },
                 title = {
@@ -107,9 +109,9 @@ private fun NotificationRow(record: NotificationRecord, onToggleFavorite: () -> 
         }
         IconButton(onClick = onToggleFavorite) {
             if (record.isFavorite) {
-                Icon(Icons.Filled.Star, contentDescription = "Убрать из избранного", tint = SilencedAmber)
+                Icon(Icons.Filled.Star, contentDescription = stringResource(R.string.appdetail_favorite_remove), tint = SilencedAmber)
             } else {
-                Icon(Icons.Outlined.StarBorder, contentDescription = "В избранное")
+                Icon(Icons.Outlined.StarBorder, contentDescription = stringResource(R.string.appdetail_favorite_add))
             }
         }
     }

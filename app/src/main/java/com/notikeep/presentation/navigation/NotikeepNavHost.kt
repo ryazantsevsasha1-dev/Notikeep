@@ -20,6 +20,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.notikeep.presentation.appdetail.AppNotificationsScreen
 import com.notikeep.presentation.archive.ArchiveScreen
+import com.notikeep.presentation.favorites.FavoritesScreen
 import com.notikeep.presentation.onboarding.OnboardingScreen
 import com.notikeep.presentation.rules.RulesScreen
 import com.notikeep.presentation.settings.SettingsScreen
@@ -71,9 +72,22 @@ fun NotikeepNavHost(onboardingCompleted: Boolean) {
                     onOpenApp = { pkg -> navController.navigate(Routes.appNotifications(pkg)) },
                 )
             }
+            composable(Routes.FAVORITES) {
+                FavoritesScreen(
+                    onOpenApp = { pkg ->
+                        navController.navigate(Routes.appNotifications(pkg, favoritesOnly = true))
+                    },
+                )
+            }
             composable(
                 route = Routes.APP_NOTIFICATIONS,
-                arguments = listOf(navArgument("packageName") { type = NavType.StringType }),
+                arguments = listOf(
+                    navArgument("packageName") { type = NavType.StringType },
+                    navArgument("favoritesOnly") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
             ) {
                 AppNotificationsScreen(onBack = { navController.popBackStack() })
             }

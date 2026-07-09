@@ -13,10 +13,12 @@ import javax.inject.Inject
  */
 class ServiceHealthProvider @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val connectionState: ListenerConnectionState,
 ) {
     fun current(): ServiceHealth = ServiceHealth(
         notificationAccessGranted = isNotificationAccessGranted(),
         batteryOptimizationIgnored = isBatteryOptimizationIgnored(),
+        listenerConnected = connectionState.isConnected,
     )
 
     private fun isNotificationAccessGranted(): Boolean {

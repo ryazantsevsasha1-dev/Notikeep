@@ -6,6 +6,54 @@
 
     <!-- Bottom navigation -->
     <string name="nav_archive">Архив</string>
+    <string name="nav_favorites">Избранное</string>
     <string name="nav_rules">Приложения</string>
     <string name="nav_settings">Настройки</string>
+
+    <!-- Archive -->
+    <string name="archive_search_placeholder">Поиск по уведомлениям</string>
+    <string name="archive_date_filter">Фильтр по дате</string>
+    <string name="archive_date_clear">Сбросить</string>
+    <string name="archive_date_apply">Применить</string>
+    <string name="archive_date_cancel">Отмена</string>
+    <string name="archive_search_empty">Ничего не найдено</string>
+    <string name="archive_empty_title">Пока пусто</string>
+    <string name="archive_empty_capturing">Notikeep сохраняет уведомления с момента, когда вы дали доступ. Новые уведомления появятся здесь.</string>
+    <string name="archive_empty_no_access">Включите доступ к уведомлениям, чтобы Notikeep начал их сохранять. Показать уведомления, пришедшие до установки, технически невозможно.</string>
+
+    <!-- Favorites -->
+    <string name="favorites_empty_title">В избранном пусто</string>
+    <string name="favorites_empty_hint">Отмечайте важные уведомления звёздочкой в архиве — они появятся здесь.</string>
+
+    <!-- App notifications (detail) -->
+    <string name="appdetail_back">Назад</string>
+    <string name="appdetail_favorite_add">В избранное</string>
+    <string name="appdetail_favorite_remove">Убрать из избранного</string>
+
+    <!-- Rules (Apps tab) -->
+    <string name="rules_search_placeholder">Поиск приложений</string>
+    <string name="rules_usage_banner">Разрешите доступ к статистике использования, чтобы сортировать список по частоте использования приложений.</string>
+    <string name="rules_usage_grant">Разрешить</string>
+    <string name="rules_usage_granted_already">Уже разрешил</string>
+    <string name="rules_notify_on">Уведомления показываются</string>
+    <string name="rules_notify_off">Уведомления скрываются</string>
+
+    <!-- Settings -->
+    <string name="settings_service_section">Состояние сервиса</string>
+    <string name="settings_service_ok">Слежение активно ✓</string>
+    <string name="settings_service_attention">Требует внимания ⚠</string>
+    <string name="settings_enable_access">Включить доступ к уведомлениям</string>
+    <string name="settings_reconnect_hint">Доступ выдан, но служба не подключена — уведомления сейчас не сохраняются.</string>
+    <string name="settings_reconnect_action">Перезапустить службу</string>
+    <string name="settings_battery">Отключить оптимизацию батареи</string>
+    <string name="settings_theme_section">Тема</string>
+    <string name="settings_theme_system">Система</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_retention_section">Срок хранения</string>
+    <string name="settings_retention_days">%1$d дн</string>
+    <string name="settings_privacy_section">Приватность</string>
+    <string name="settings_analytics_title">Помогать улучшать приложение</string>
+    <string name="settings_analytics_subtitle">Анонимно, без содержимого уведомлений</string>
+    <string name="settings_clear_archive">Очистить весь архив</string>
 </resources>

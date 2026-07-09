@@ -22,16 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.notikeep.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notikeep.domain.model.ThemeMode
 import com.notikeep.presentation.common.SystemSettings
 
 private val THEMES = listOf(
-    ThemeMode.SYSTEM to "Система",
-    ThemeMode.LIGHT to "Светлая",
-    ThemeMode.DARK to "Тёмная",
+    ThemeMode.SYSTEM to R.string.settings_theme_system,
+    ThemeMode.LIGHT to R.string.settings_theme_light,
+    ThemeMode.DARK to R.string.settings_theme_dark,
 )
 
 private val RETENTIONS = listOf(7, 30, 90)
@@ -47,58 +49,70 @@ fun SettingsScreen(
 
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
 
-        SectionTitle("Состояние сервиса")
+        SectionTitle(stringResource(R.string.settings_service_section))
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text(
-                    if (state.health.isHealthy) "Слежение активно ✓" else "Требует внимания ⚠",
+                    stringResource(
+                        if (state.health.isHealthy) R.string.settings_service_ok
+                        else R.string.settings_service_attention,
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                 )
                 if (!state.health.notificationAccessGranted) {
                     TextButton(onClick = { SystemSettings.openNotificationAccess(context) }) {
-                        Text("Включить доступ к уведомлениям")
+                        Text(stringResource(R.string.settings_enable_access))
+                    }
+                }
+                if (state.health.needsReconnect) {
+                    Text(
+                        stringResource(R.string.settings_reconnect_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    TextButton(onClick = viewModel::reconnectListener) {
+                        Text(stringResource(R.string.settings_reconnect_action))
                     }
                 }
                 if (!state.health.batteryOptimizationIgnored) {
                     TextButton(onClick = { SystemSettings.requestIgnoreBatteryOptimization(context) }) {
-                        Text("Отключить оптимизацию батареи")
+                        Text(stringResource(R.string.settings_battery))
                     }
                 }
             }
         }
 
-        SectionTitle("Тема")
+        SectionTitle(stringResource(R.string.settings_theme_section))
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            THEMES.forEachIndexed { index, (mode, label) ->
+            THEMES.forEachIndexed { index, (mode, labelRes) ->
                 SegmentedButton(
                     selected = settings.themeMode == mode,
                     onClick = { viewModel.setTheme(mode) },
                     shape = SegmentedButtonDefaults.itemShape(index, THEMES.size),
-                ) { Text(label) }
+                ) { Text(stringResource(labelRes)) }
             }
         }
 
-        SectionTitle("Срок хранения")
+        SectionTitle(stringResource(R.string.settings_retention_section))
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             RETENTIONS.forEachIndexed { index, days ->
                 SegmentedButton(
                     selected = settings.retentionDays == days,
                     onClick = { viewModel.setRetentionDays(days) },
                     shape = SegmentedButtonDefaults.itemShape(index, RETENTIONS.size),
-                ) { Text("$days дн") }
+                ) { Text(stringResource(R.string.settings_retention_days, days)) }
             }
         }
 
-        SectionTitle("Приватность")
+        SectionTitle(stringResource(R.string.settings_privacy_section))
         Row(
             Modifier.fillMaxWidth().padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("Помогать улучшать приложение", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.settings_analytics_title), style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    "Анонимно, без содержимого уведомлений",
+                    stringResource(R.string.settings_analytics_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -110,7 +124,7 @@ fun SettingsScreen(
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
         TextButton(onClick = viewModel::clearArchive) {
-            Text("Очистить весь архив")
+            Text(stringResource(R.string.settings_clear_archive))
         }
     }
 }

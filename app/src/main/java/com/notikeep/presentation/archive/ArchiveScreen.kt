@@ -42,9 +42,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.notikeep.domain.model.AppArchiveSummary
+import androidx.compose.ui.res.stringResource
+import com.notikeep.R
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.presentation.common.AppIconImage
+import com.notikeep.presentation.common.AppSummaryListItem
 import com.notikeep.presentation.common.NotikeepSearchBar
 import com.notikeep.presentation.common.formatTimestamp
 
@@ -64,10 +66,10 @@ fun ArchiveScreen(
         NotikeepSearchBar(
             query = query,
             onQueryChange = { viewModel.query.value = it },
-            placeholder = "Поиск по уведомлениям",
+            placeholder = stringResource(R.string.archive_search_placeholder),
             trailingExtra = {
                 IconButton(onClick = { showDatePicker = true }) {
-                    Icon(Icons.Filled.DateRange, contentDescription = "Фильтр по дате")
+                    Icon(Icons.Filled.DateRange, contentDescription = stringResource(R.string.archive_date_filter))
                 }
             },
         )
@@ -80,7 +82,7 @@ fun ArchiveScreen(
                     val to = state.dateRange.to?.let { formatTimestamp(it) } ?: "…"
                     Text("$from — $to")
                 },
-                trailingIcon = { Icon(Icons.Filled.Close, contentDescription = "Сбросить", Modifier.size(16.dp)) },
+                trailingIcon = { Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.archive_date_clear), Modifier.size(16.dp)) },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -95,7 +97,7 @@ fun ArchiveScreen(
             state.isEmpty -> EmptyState(state.captureStartedAt, Modifier.weight(1f))
             else -> LazyColumn(Modifier.weight(1f).fillMaxSize()) {
                 items(state.summaries, key = { it.packageName }) { summary ->
-                    AppSummaryRow(summary, onClick = { onOpenApp(summary.packageName) })
+                    AppSummaryListItem(summary, onClick = { onOpenApp(summary.packageName) })
                     HorizontalDivider()
                 }
             }
@@ -130,49 +132,11 @@ private fun DateRangeDialog(onConfirm: (Long?, Long?) -> Unit, onDismiss: () -> 
                 onClick = {
                     onConfirm(pickerState.selectedStartDateMillis, pickerState.selectedEndDateMillis)
                 },
-            ) { Text("Применить") }
+            ) { Text(stringResource(R.string.archive_date_apply)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Отмена") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.archive_date_cancel)) } },
     ) {
         DateRangePicker(state = pickerState, modifier = Modifier.weight(1f))
-    }
-}
-
-/** Messenger-style row: icon, app name + preview of the latest notification, time, unread badge. */
-@Composable
-private fun AppSummaryRow(summary: AppArchiveSummary, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp, 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        AppIconImage(summary.packageName, size = 44.dp)
-        Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-            Text(
-                summary.appLabel,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            val preview = listOf(summary.previewTitle, summary.previewText)
-                .filter { it.isNotBlank() }
-                .joinToString(": ")
-            if (preview.isNotBlank()) {
-                Text(
-                    preview,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-        Column(horizontalAlignment = Alignment.End) {
-            Text(formatTimestamp(summary.lastPostedAt), style = MaterialTheme.typography.labelSmall)
-            if (summary.unreadCount > 0) {
-                Spacer(Modifier.size(4.dp))
-                Badge { Text(summary.unreadCount.toString()) }
-            }
-        }
     }
 }
 
@@ -184,7 +148,7 @@ private fun SearchResults(
 ) {
     if (results.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Ничего не найдено", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.archive_search_empty), style = MaterialTheme.typography.bodyMedium)
         }
         return
     }
@@ -257,16 +221,15 @@ private fun EmptyState(captureStartedAt: Long?, modifier: Modifier) {
         Icon(Icons.Filled.NotificationsOff, contentDescription = null, modifier = Modifier.size(48.dp))
         Spacer(Modifier.size(16.dp))
         Text(
-            "Пока пусто",
+            stringResource(R.string.archive_empty_title),
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(Modifier.size(8.dp))
         Text(
-            text = if (captureStartedAt != null) {
-                "Notikeep сохраняет уведомления с момента, когда вы дали доступ. Новые уведомления появятся здесь."
-            } else {
-                "Включите доступ к уведомлениям, чтобы Notikeep начал их сохранять. Показать уведомления, пришедшие до установки, технически невозможно."
-            },
+            text = stringResource(
+                if (captureStartedAt != null) R.string.archive_empty_capturing
+                else R.string.archive_empty_no_access,
+            ),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
         )

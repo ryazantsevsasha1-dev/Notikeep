@@ -7,8 +7,14 @@ package com.notikeep.domain.model
 data class ServiceHealth(
     val notificationAccessGranted: Boolean,
     val batteryOptimizationIgnored: Boolean,
+    /** Access can be granted while the system still hasn't bound the listener. */
+    val listenerConnected: Boolean = false,
 ) {
-    /** Capture is reliable only when both conditions hold. */
+    /** Capture is reliable only when all conditions hold. */
     val isHealthy: Boolean
-        get() = notificationAccessGranted && batteryOptimizationIgnored
+        get() = notificationAccessGranted && batteryOptimizationIgnored && listenerConnected
+
+    /** The post-update trap: permission looks fine but nothing is being captured. */
+    val needsReconnect: Boolean
+        get() = notificationAccessGranted && !listenerConnected
 }

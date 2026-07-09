@@ -28,8 +28,15 @@ class AppNotificationsViewModel @Inject constructor(
 
     val packageName: String = checkNotNull(savedStateHandle["packageName"])
 
+    /** When opened from the Favorites tab, only starred notifications are listed. */
+    private val favoritesOnly: Boolean = savedStateHandle["favoritesOnly"] ?: false
+
+    private val source =
+        if (favoritesOnly) repository.observeFavoritesByPackage(packageName)
+        else repository.observeByPackage(packageName)
+
     val state: StateFlow<AppNotificationsUiState> =
-        repository.observeByPackage(packageName)
+        source
             .map { records ->
                 AppNotificationsUiState(
                     loading = false,

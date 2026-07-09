@@ -3,6 +3,8 @@ package com.notikeep.data.service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import com.notikeep.domain.model.InstalledApp
+import com.notikeep.domain.port.AppCatalog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -10,9 +12,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-
-/** A launchable app the user can set a rule for. */
-data class InstalledApp(val packageName: String, val label: String)
 
 /**
  * Lists user-facing apps (those with a launcher entry), excluding Notikeep itself.
@@ -27,11 +26,11 @@ data class InstalledApp(val packageName: String, val label: String)
 @Singleton
 class InstalledAppsProvider @Inject constructor(
     @ApplicationContext private val context: Context,
-) {
+) : AppCatalog {
     private val mutex = Mutex()
     private var cache: List<InstalledApp>? = null
 
-    suspend fun listLaunchable(forceRefresh: Boolean = false): List<InstalledApp> =
+    override suspend fun listLaunchable(forceRefresh: Boolean): List<InstalledApp> =
         mutex.withLock {
             cache?.takeIf { !forceRefresh } ?: load().also { cache = it }
         }
