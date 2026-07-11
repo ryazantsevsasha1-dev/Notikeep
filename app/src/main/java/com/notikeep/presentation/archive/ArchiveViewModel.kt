@@ -101,6 +101,9 @@ class ArchiveViewModel @Inject constructor(
 
     fun delete(id: Long) = viewModelScope.launch { repository.delete(id) }
 
+    /** Long-press delete: removes every notification of the app. */
+    fun deleteApp(packageName: String) = viewModelScope.launch { repository.deleteByPackage(packageName) }
+
     private companion object {
         const val DAY_MILLIS = 24 * 60 * 60 * 1000L
     }

@@ -1,6 +1,7 @@
 package com.notikeep.presentation.common
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,10 +22,18 @@ import com.notikeep.domain.model.AppArchiveSummary
  * Messenger-style row: icon, app name + preview of the latest notification,
  * time, unread badge. Shared by the Archive and Favorites tabs.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AppSummaryListItem(summary: AppArchiveSummary, onClick: () -> Unit) {
+fun AppSummaryListItem(
+    summary: AppArchiveSummary,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp, 10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(16.dp, 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AppIconImage(summary.packageName, size = 44.dp)

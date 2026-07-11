@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.notikeep.data.local.entity.NotificationEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -24,6 +25,29 @@ interface NotificationDao {
     /** IGNORE + the unique dedup index make repeated captures of the same notification a no-op. */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: NotificationEntity): Long
+
+    @Update
+    suspend fun update(entity: NotificationEntity)
+
+    // --- Dedup-strategy support (see DeduplicateUseCase) ---
+
+    /** Rows with identical title+text from one app since [since]; drives EXACT_TEXT_WINDOW. */
+    @Query(
+        "SELECT COUNT(*) FROM notifications WHERE packageName = :packageName " +
+            "AND title = :title AND text = :text AND postedAt >= :since",
+    )
+    suspend fun countRecentByText(packageName: String, title: String, text: String, since: Long): Int
+
+    /** Rows with the same title from one app since [since]; drives TITLE_ONLY_WINDOW. */
+    @Query(
+        "SELECT COUNT(*) FROM notifications WHERE packageName = :packageName " +
+            "AND title = :title AND postedAt >= :since",
+    )
+    suspend fun countRecentByTitle(packageName: String, title: String, since: Long): Int
+
+    /** Newest row carrying [sbnKey], or null; drives BY_KEY (update-in-place). */
+    @Query("SELECT * FROM notifications WHERE sbnKey = :sbnKey ORDER BY postedAt DESC LIMIT 1")
+    suspend fun findBySbnKey(sbnKey: String): NotificationEntity?
 
     @Query("SELECT * FROM notifications ORDER BY postedAt DESC")
     fun observeAll(): Flow<List<NotificationEntity>>
@@ -95,9 +119,27 @@ interface NotificationDao {
     @Query("DELETE FROM notifications WHERE id = :id")
     suspend fun delete(id: Long)
 
+    /** Deletes every notification of one app; backs long-press delete in the archive. */
+    @Query("DELETE FROM notifications WHERE packageName = :packageName")
+    suspend fun deleteByPackage(packageName: String)
+
     @Query("DELETE FROM notifications")
     suspend fun clearAll()
 
     @Query("DELETE FROM notifications WHERE postedAt < :threshold")
     suspend fun deleteOlderThan(threshold: Long): Int
+
+    /** Today's captured/silenced counts for the summary notification. */
+    @Query(
+        """
+        SELECT COUNT(*) AS total,
+               SUM(CASE WHEN wasSilenced = 1 THEN 1 ELSE 0 END) AS silenced
+        FROM notifications
+        WHERE postedAt >= :startOfDay
+        """,
+    )
+    fun observeDailyCounts(startOfDay: Long): Flow<DailyCountsRow>
 }
+
+/** Aggregated daily totals; `silenced` is null when there are no rows yet. */
+data class DailyCountsRow(val total: Int, val silenced: Int?)

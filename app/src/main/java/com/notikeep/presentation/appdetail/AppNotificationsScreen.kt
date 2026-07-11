@@ -1,5 +1,7 @@
 package com.notikeep.presentation.appdetail
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -20,9 +23,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -45,6 +52,7 @@ fun AppNotificationsScreen(
     viewModel: AppNotificationsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var pendingDelete by remember { mutableStateOf<NotificationRecord?>(null) }
 
     Scaffold(
         modifier = modifier,
@@ -81,17 +89,48 @@ fun AppNotificationsScreen(
         }
         LazyColumn(Modifier.fillMaxSize().padding(padding)) {
             items(state.notifications, key = { it.id }) { record ->
-                NotificationRow(record, onToggleFavorite = { viewModel.toggleFavorite(record) })
+                NotificationRow(
+                    record,
+                    onToggleFavorite = { viewModel.toggleFavorite(record) },
+                    onLongClick = { pendingDelete = record },
+                )
                 HorizontalDivider()
             }
         }
     }
+
+    pendingDelete?.let { record ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.appdetail_delete_title)) },
+            text = { Text(stringResource(R.string.appdetail_delete_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.delete(record.id)
+                    pendingDelete = null
+                }) { Text(stringResource(R.string.appdetail_delete_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.appdetail_delete_cancel))
+                }
+            },
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NotificationRow(record: NotificationRecord, onToggleFavorite: () -> Unit) {
+private fun NotificationRow(
+    record: NotificationRecord,
+    onToggleFavorite: () -> Unit,
+    onLongClick: () -> Unit,
+) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 6.dp, bottom = 6.dp, end = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = {}, onLongClick = onLongClick)
+            .padding(start = 16.dp, top = 6.dp, bottom = 6.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {

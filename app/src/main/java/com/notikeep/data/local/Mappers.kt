@@ -17,6 +17,7 @@ fun NotificationEntity.toDomain() = NotificationRecord(
     wasSilenced = wasSilenced,
     isRead = isRead,
     isFavorite = isFavorite,
+    sbnKey = sbnKey,
 )
 
 /** id defaults to 0 so Room autogenerates it on insert. */
@@ -30,6 +31,7 @@ fun NotificationRecord.toEntity() = NotificationEntity(
     wasSilenced = wasSilenced,
     isRead = isRead,
     isFavorite = isFavorite,
+    sbnKey = sbnKey,
 )
 
 fun AppSummaryRow.toDomain() = AppArchiveSummary(

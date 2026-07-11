@@ -78,6 +78,7 @@ class NotikeepListenerService : NotificationListenerService() {
             text = text,
             postedAt = postTime,
             wasSilenced = false,
+            sbnKey = key,
         )
     }
 

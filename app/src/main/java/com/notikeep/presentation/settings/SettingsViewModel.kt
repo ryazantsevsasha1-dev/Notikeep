@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.notikeep.data.service.ListenerConnectionState
 import com.notikeep.data.service.ListenerRebinder
 import com.notikeep.data.service.ServiceHealthProvider
+import com.notikeep.domain.model.DedupStrategy
 import com.notikeep.domain.model.ServiceHealth
 import com.notikeep.domain.model.ThemeMode
 import com.notikeep.domain.model.UserSettings
@@ -47,6 +48,12 @@ class SettingsViewModel @Inject constructor(
 
     fun setAnalyticsEnabled(enabled: Boolean) =
         viewModelScope.launch { settings.setAnalyticsEnabled(enabled) }
+
+    fun setDailySummaryEnabled(enabled: Boolean) =
+        viewModelScope.launch { settings.setDailySummaryEnabled(enabled) }
+
+    fun setDedupStrategy(strategy: DedupStrategy) =
+        viewModelScope.launch { settings.setDedupStrategy(strategy) }
 
     fun clearArchive() = viewModelScope.launch { notifications.clearAll() }
 }

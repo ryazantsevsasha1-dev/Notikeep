@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Badge
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
 import com.notikeep.R
+import com.notikeep.domain.model.AppArchiveSummary
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.presentation.common.AppIconImage
 import com.notikeep.presentation.common.AppSummaryListItem
@@ -61,6 +63,7 @@ fun ArchiveScreen(
     val query by viewModel.query.collectAsStateWithLifecycle()
     var detail by remember { mutableStateOf<NotificationRecord?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var pendingDelete by remember { mutableStateOf<AppArchiveSummary?>(null) }
 
     Column(modifier.fillMaxSize()) {
         NotikeepSearchBar(
@@ -97,7 +100,11 @@ fun ArchiveScreen(
             state.isEmpty -> EmptyState(state.captureStartedAt, Modifier.weight(1f))
             else -> LazyColumn(Modifier.weight(1f).fillMaxSize()) {
                 items(state.summaries, key = { it.packageName }) { summary ->
-                    AppSummaryListItem(summary, onClick = { onOpenApp(summary.packageName) })
+                    AppSummaryListItem(
+                        summary,
+                        onClick = { onOpenApp(summary.packageName) },
+                        onLongClick = { pendingDelete = summary },
+                    )
                     HorizontalDivider()
                 }
             }
@@ -119,6 +126,33 @@ fun ArchiveScreen(
             NotificationDetail(record)
         }
     }
+
+    pendingDelete?.let { summary ->
+        DeleteAppDialog(
+            appLabel = summary.appLabel,
+            onConfirm = {
+                viewModel.deleteApp(summary.packageName)
+                pendingDelete = null
+            },
+            onDismiss = { pendingDelete = null },
+        )
+    }
+}
+
+/** Confirmation before wiping every notification of one app (long-press delete). */
+@Composable
+internal fun DeleteAppDialog(appLabel: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.archive_delete_app_title)) },
+        text = { Text(stringResource(R.string.archive_delete_app_message, appLabel)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.archive_delete_app_confirm)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.archive_delete_app_cancel)) }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

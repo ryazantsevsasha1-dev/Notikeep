@@ -1,6 +1,7 @@
 package com.notikeep.domain.repository
 
 import com.notikeep.domain.model.AppArchiveSummary
+import com.notikeep.domain.model.DailyCounts
 import com.notikeep.domain.model.NotificationRecord
 import kotlinx.coroutines.flow.Flow
 
@@ -11,6 +12,18 @@ import kotlinx.coroutines.flow.Flow
 interface NotificationRepository {
 
     suspend fun save(record: NotificationRecord)
+
+    /** Count of same-app notifications with identical title+text posted at or after [since]. */
+    suspend fun countRecentByText(packageName: String, title: String, text: String, since: Long): Int
+
+    /** Count of same-app notifications with the same title posted at or after [since]. */
+    suspend fun countRecentByTitle(packageName: String, title: String, since: Long): Int
+
+    /** Newest stored record carrying [sbnKey], or null. */
+    suspend fun findBySbnKey(sbnKey: String): NotificationRecord?
+
+    /** Replaces an existing record in place (used to collapse notification updates). */
+    suspend fun update(record: NotificationRecord)
 
     /** All notifications, newest first, as a reactive stream. */
     fun observeAll(): Flow<List<NotificationRecord>>
@@ -23,6 +36,9 @@ interface NotificationRepository {
 
     /** Favorites tab: one row per app, starred notifications only. */
     fun observeFavoriteAppSummaries(): Flow<List<AppArchiveSummary>>
+
+    /** Live captured/silenced counts since [startOfDayMillis]; powers the daily summary. */
+    fun observeDailyCounts(startOfDayMillis: Long): Flow<DailyCounts>
 
     /** All notifications of one app, newest first. */
     fun observeByPackage(packageName: String): Flow<List<NotificationRecord>>
@@ -39,6 +55,9 @@ interface NotificationRepository {
     fun search(query: String, from: Long? = null, to: Long? = null): Flow<List<NotificationRecord>>
 
     suspend fun delete(id: Long)
+
+    /** Deletes every notification of one app (long-press delete in the archive). */
+    suspend fun deleteByPackage(packageName: String)
 
     suspend fun clearAll()
 

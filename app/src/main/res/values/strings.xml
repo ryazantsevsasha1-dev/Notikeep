@@ -20,6 +20,10 @@
     <string name="archive_empty_title">Пока пусто</string>
     <string name="archive_empty_capturing">Notikeep сохраняет уведомления с момента, когда вы дали доступ. Новые уведомления появятся здесь.</string>
     <string name="archive_empty_no_access">Включите доступ к уведомлениям, чтобы Notikeep начал их сохранять. Показать уведомления, пришедшие до установки, технически невозможно.</string>
+    <string name="archive_delete_app_title">Удалить уведомления?</string>
+    <string name="archive_delete_app_message">Удалить все сохранённые уведомления приложения «%1$s»? Это действие нельзя отменить.</string>
+    <string name="archive_delete_app_confirm">Удалить</string>
+    <string name="archive_delete_app_cancel">Отмена</string>
 
     <!-- Favorites -->
     <string name="favorites_empty_title">В избранном пусто</string>
@@ -29,6 +33,10 @@
     <string name="appdetail_back">Назад</string>
     <string name="appdetail_favorite_add">В избранное</string>
     <string name="appdetail_favorite_remove">Убрать из избранного</string>
+    <string name="appdetail_delete_title">Удалить уведомление?</string>
+    <string name="appdetail_delete_message">Это уведомление будет удалено из архива безвозвратно.</string>
+    <string name="appdetail_delete_confirm">Удалить</string>
+    <string name="appdetail_delete_cancel">Отмена</string>
 
     <!-- Rules (Apps tab) -->
     <string name="rules_search_placeholder">Поиск приложений</string>
@@ -55,5 +63,24 @@
     <string name="settings_privacy_section">Приватность</string>
     <string name="settings_analytics_title">Помогать улучшать приложение</string>
     <string name="settings_analytics_subtitle">Анонимно, без содержимого уведомлений</string>
+    <string name="settings_daily_summary_title">Показывать сводку за день</string>
+    <string name="settings_daily_summary_subtitle">Уведомление с числом сохранённых и скрытых за сегодня</string>
+    <string name="settings_dedup_section">Антидубль (эксперимент)</string>
+    <string name="settings_dedup_hint">Некоторые приложения (VPN, Telegram) обновляют или дублируют свои уведомления. Выберите способ подавления копий — можно сравнить разные варианты.</string>
+    <string name="settings_dedup_off">Выключено</string>
+    <string name="settings_dedup_off_desc">Сохранять все уведомления как есть.</string>
+    <string name="settings_dedup_exact">Одинаковый текст</string>
+    <string name="settings_dedup_exact_desc">Не сохранять точный повтор (заголовок и текст) от того же приложения в течение 10 секунд.</string>
+    <string name="settings_dedup_title">Только заголовок</string>
+    <string name="settings_dedup_title_desc">Не сохранять повтор с тем же заголовком за 10 секунд, даже если текст немного меняется.</string>
+    <string name="settings_dedup_key">По ключу уведомления</string>
+    <string name="settings_dedup_key_desc">Обновления одного и того же уведомления объединяются в одну запись.</string>
+    <string name="settings_dedup_combined">Комбинированный</string>
+    <string name="settings_dedup_combined_desc">Объединять по ключу и отбрасывать быстрые точные повторы.</string>
     <string name="settings_clear_archive">Очистить весь архив</string>
+
+    <!-- Daily summary notification -->
+    <string name="daily_summary_channel_name">Сводка за день</string>
+    <string name="daily_summary_title">Notikeep сегодня</string>
+    <string name="daily_summary_text">Сохранено сегодня: %1$d (скрыто: %2$d)</string>
 </resources>

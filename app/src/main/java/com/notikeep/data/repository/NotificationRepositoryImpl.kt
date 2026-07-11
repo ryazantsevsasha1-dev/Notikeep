@@ -4,6 +4,7 @@ import com.notikeep.data.local.dao.NotificationDao
 import com.notikeep.data.local.toDomain
 import com.notikeep.data.local.toEntity
 import com.notikeep.domain.model.AppArchiveSummary
+import com.notikeep.domain.model.DailyCounts
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.domain.repository.NotificationRepository
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,17 @@ class NotificationRepositoryImpl @Inject constructor(
         dao.insert(record.toEntity())
     }
 
+    override suspend fun countRecentByText(packageName: String, title: String, text: String, since: Long): Int =
+        dao.countRecentByText(packageName, title, text, since)
+
+    override suspend fun countRecentByTitle(packageName: String, title: String, since: Long): Int =
+        dao.countRecentByTitle(packageName, title, since)
+
+    override suspend fun findBySbnKey(sbnKey: String): NotificationRecord? =
+        dao.findBySbnKey(sbnKey)?.toDomain()
+
+    override suspend fun update(record: NotificationRecord) = dao.update(record.toEntity())
+
     override fun observeAll(): Flow<List<NotificationRecord>> =
         dao.observeAll().map { list -> list.map { it.toDomain() } }
 
@@ -27,6 +39,10 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override fun observeFavoriteAppSummaries(): Flow<List<AppArchiveSummary>> =
         dao.observeFavoriteAppSummaries().map { rows -> rows.map { it.toDomain() } }
+
+    override fun observeDailyCounts(startOfDayMillis: Long): Flow<DailyCounts> =
+        dao.observeDailyCounts(startOfDayMillis)
+            .map { DailyCounts(total = it.total, silenced = it.silenced ?: 0) }
 
     override fun observeByPackage(packageName: String): Flow<List<NotificationRecord>> =
         dao.observeByPackage(packageName).map { list -> list.map { it.toDomain() } }
@@ -43,6 +59,8 @@ class NotificationRepositoryImpl @Inject constructor(
             .map { list -> list.map { it.toDomain() } }
 
     override suspend fun delete(id: Long) = dao.delete(id)
+
+    override suspend fun deleteByPackage(packageName: String) = dao.deleteByPackage(packageName)
 
     override suspend fun clearAll() = dao.clearAll()
 

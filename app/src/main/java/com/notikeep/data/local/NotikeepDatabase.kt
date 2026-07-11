@@ -12,7 +12,7 @@ import com.notikeep.data.local.entity.NotificationEntity
 
 @Database(
     entities = [NotificationEntity::class, AppRuleEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(NotikeepConverters::class)
@@ -57,6 +57,13 @@ abstract class NotikeepDatabase : RoomDatabase() {
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("DROP TABLE IF EXISTS notifications_fts")
+            }
+        }
+
+        /** v5: store the OS notification key so the BY_KEY dedup strategy can collapse updates. */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE notifications ADD COLUMN sbnKey TEXT")
             }
         }
     }

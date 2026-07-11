@@ -11,6 +11,10 @@ data class UserSettings(
     val firstAccessGrantedAt: Long?,
     /** True once the top-20 most-used apps were auto-assigned the default rule. */
     val defaultRulesSeeded: Boolean = false,
+    /** Post a running notification summarising today's captured/silenced counts. */
+    val dailySummaryEnabled: Boolean = true,
+    /** Which duplicate-suppression strategy to apply on capture. */
+    val dedupStrategy: DedupStrategy = DedupStrategy.DEFAULT,
 ) {
     companion object {
         const val DEFAULT_RETENTION_DAYS = 30

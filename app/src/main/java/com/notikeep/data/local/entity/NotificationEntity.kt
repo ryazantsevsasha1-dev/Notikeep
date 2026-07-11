@@ -29,4 +29,6 @@ data class NotificationEntity(
     val isRead: Boolean = false,
     /** User-starred notification. */
     val isFavorite: Boolean = false,
+    /** OS notification key (sbn.key); used by the BY_KEY dedup strategy. */
+    val sbnKey: String? = null,
 )

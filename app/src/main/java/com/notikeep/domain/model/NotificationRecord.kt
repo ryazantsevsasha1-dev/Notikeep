@@ -19,4 +19,6 @@ data class NotificationRecord(
     val isRead: Boolean = false,
     /** User-starred notification. */
     val isFavorite: Boolean = false,
+    /** The OS notification key (sbn.key); lets dedup collapse updates of one notification. */
+    val sbnKey: String? = null,
 )

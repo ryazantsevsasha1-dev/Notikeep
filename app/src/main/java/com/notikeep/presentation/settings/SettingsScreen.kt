@@ -8,9 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -27,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.notikeep.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.notikeep.domain.model.DedupStrategy
 import com.notikeep.domain.model.ThemeMode
 import com.notikeep.presentation.common.SystemSettings
 
@@ -37,6 +45,15 @@ private val THEMES = listOf(
 )
 
 private val RETENTIONS = listOf(7, 30, 90)
+
+/** Label + short description for each dedup strategy shown in the experiment picker. */
+private val DEDUP_STRATEGIES = listOf(
+    DedupStrategy.OFF to (R.string.settings_dedup_off to R.string.settings_dedup_off_desc),
+    DedupStrategy.EXACT_TEXT_WINDOW to (R.string.settings_dedup_exact to R.string.settings_dedup_exact_desc),
+    DedupStrategy.TITLE_ONLY_WINDOW to (R.string.settings_dedup_title to R.string.settings_dedup_title_desc),
+    DedupStrategy.BY_KEY to (R.string.settings_dedup_key to R.string.settings_dedup_key_desc),
+    DedupStrategy.COMBINED to (R.string.settings_dedup_combined to R.string.settings_dedup_combined_desc),
+)
 
 @Composable
 fun SettingsScreen(
@@ -122,6 +139,42 @@ fun SettingsScreen(
             )
         }
 
+        Row(
+            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_daily_summary_title), style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    stringResource(R.string.settings_daily_summary_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Switch(
+                checked = settings.dailySummaryEnabled,
+                onCheckedChange = viewModel::setDailySummaryEnabled,
+            )
+        }
+
+        SectionTitle(stringResource(R.string.settings_dedup_section))
+        Text(
+            stringResource(R.string.settings_dedup_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        DEDUP_STRATEGIES.forEach { (strategy, labels) ->
+            val (titleRes, descRes) = labels
+            DedupStrategyCard(
+                title = stringResource(titleRes),
+                description = stringResource(descRes),
+                selected = settings.dedupStrategy == strategy,
+                onSelect = { viewModel.setDedupStrategy(strategy) },
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
         TextButton(onClick = viewModel::clearArchive) {
             Text(stringResource(R.string.settings_clear_archive))
@@ -136,4 +189,48 @@ private fun SectionTitle(text: String) {
         style = MaterialTheme.typography.titleSmall,
         modifier = Modifier.padding(top = 20.dp, bottom = 8.dp),
     )
+}
+
+/** Selectable card for one dedup strategy; the chosen one is highlighted. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DedupStrategyCard(
+    title: String,
+    description: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+) {
+    val border = if (selected) {
+        BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
+    } else {
+        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    }
+    val colors = if (selected) {
+        CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+        )
+    } else {
+        CardDefaults.outlinedCardColors()
+    }
+    OutlinedCard(
+        onClick = onSelect,
+        border = border,
+        colors = colors,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RadioButton(selected = selected, onClick = onSelect)
+            Column(Modifier.weight(1f).padding(start = 8.dp)) {
+                Text(title, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
 }

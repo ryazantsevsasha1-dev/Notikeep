@@ -11,9 +11,11 @@ import coil.ImageLoaderFactory
 import com.notikeep.data.analytics.AppMetricaAnalytics
 import com.notikeep.data.icons.AppIconFetcher
 import com.notikeep.data.icons.AppIconKeyer
+import com.notikeep.data.notification.DailySummaryController
 import com.notikeep.data.work.ListenerWatchdogWorker
 import com.notikeep.data.work.RetentionCleanupWorker
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -23,6 +25,8 @@ class NotikeepApp : Application(), Configuration.Provider, ImageLoaderFactory {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var appMetrica: AppMetricaAnalytics
+    @Inject lateinit var dailySummaryController: DailySummaryController
+    @Inject lateinit var appScope: CoroutineScope
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -41,6 +45,7 @@ class NotikeepApp : Application(), Configuration.Provider, ImageLoaderFactory {
         appMetrica.init(this)
         scheduleRetentionCleanup()
         scheduleListenerWatchdog()
+        dailySummaryController.start(appScope)
     }
 
     private fun scheduleRetentionCleanup() {
