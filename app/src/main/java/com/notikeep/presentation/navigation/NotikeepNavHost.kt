@@ -1,15 +1,14 @@
 package com.notikeep.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -43,29 +42,28 @@ fun NotikeepNavHost(onboardingCompleted: Boolean) {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                TopTab.entries.forEach { tab ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(tab.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(tab.icon, contentDescription = null) },
-                        label = { Text(stringResource(tab.labelRes)) },
-                    )
-                }
-            }
+            NotikeepBottomBar(
+                tabs = TopTab.entries,
+                isSelected = { tab ->
+                    currentDestination?.hierarchy?.any { it.route == tab.route } == true
+                },
+                onSelect = { tab ->
+                    navController.navigate(tab.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+            )
         },
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Routes.ARCHIVE,
             modifier = Modifier.padding(innerPadding),
+            // Gentle cross-fade between tabs; detail screens slide in from the side.
+            enterTransition = { fadeIn(tween(TAB_FADE_MS)) },
+            exitTransition = { fadeOut(tween(TAB_FADE_MS)) },
         ) {
             composable(Routes.ARCHIVE) {
                 ArchiveScreen(
@@ -88,6 +86,18 @@ fun NotikeepNavHost(onboardingCompleted: Boolean) {
                         defaultValue = false
                     },
                 ),
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(DETAIL_SLIDE_MS))
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(DETAIL_SLIDE_MS))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(DETAIL_SLIDE_MS))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(DETAIL_SLIDE_MS))
+                },
             ) {
                 AppNotificationsScreen(onBack = { navController.popBackStack() })
             }
@@ -96,3 +106,6 @@ fun NotikeepNavHost(onboardingCompleted: Boolean) {
         }
     }
 }
+
+private const val TAB_FADE_MS = 220
+private const val DETAIL_SLIDE_MS = 300

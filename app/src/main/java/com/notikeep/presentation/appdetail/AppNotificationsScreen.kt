@@ -41,7 +41,6 @@ import com.notikeep.R
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.presentation.common.AppIconImage
 import com.notikeep.presentation.common.formatTimestamp
-import com.notikeep.presentation.theme.SilencedAmber
 
 /** All notifications of one app, newest first, with favorite toggles. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -148,7 +147,7 @@ private fun NotificationRow(
         }
         IconButton(onClick = onToggleFavorite) {
             if (record.isFavorite) {
-                Icon(Icons.Filled.Star, contentDescription = stringResource(R.string.appdetail_favorite_remove), tint = SilencedAmber)
+                Icon(Icons.Filled.Star, contentDescription = stringResource(R.string.appdetail_favorite_remove), tint = MaterialTheme.colorScheme.tertiary)
             } else {
                 Icon(Icons.Outlined.StarBorder, contentDescription = stringResource(R.string.appdetail_favorite_add))
             }

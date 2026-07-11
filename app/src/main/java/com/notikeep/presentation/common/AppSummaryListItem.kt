@@ -61,7 +61,10 @@ fun AppSummaryListItem(
             Text(formatTimestamp(summary.lastPostedAt), style = MaterialTheme.typography.labelSmall)
             if (summary.unreadCount > 0) {
                 Spacer(Modifier.size(4.dp))
-                Badge { Text(summary.unreadCount.toString()) }
+                Badge(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                ) { Text(summary.unreadCount.toString()) }
             }
         }
     }

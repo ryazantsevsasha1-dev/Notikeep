@@ -55,7 +55,12 @@ fun FavoritesScreen(
             Arrangement.Center,
             Alignment.CenterHorizontally,
         ) {
-            Icon(Icons.Outlined.StarBorder, contentDescription = null, modifier = Modifier.size(48.dp))
+            Icon(
+                Icons.Outlined.StarBorder,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.tertiary,
+            )
             Text(
                 stringResource(R.string.favorites_empty_title),
                 style = MaterialTheme.typography.titleMedium,

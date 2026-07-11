@@ -1,6 +1,7 @@
 package com.notikeep.data.notification
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -54,6 +55,9 @@ class DailySummaryNotifier @Inject constructor(
                 context, Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
 
+    // Permission is checked at runtime by canPost() and the notify() call is
+    // additionally wrapped in a SecurityException guard below.
+    @SuppressLint("MissingPermission")
     fun update(total: Int, silenced: Int) {
         if (!canPost()) return
         ensureChannel()
@@ -68,7 +72,13 @@ class DailySummaryNotifier @Inject constructor(
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setShowWhen(false)
             .build()
-        manager.notify(NOTIFICATION_ID, notification)
+        // canPost() already guards the permission; the try/catch covers the rare
+        // race where the user revokes it between the check and this call.
+        try {
+            manager.notify(NOTIFICATION_ID, notification)
+        } catch (_: SecurityException) {
+            // Permission gone; nothing to show.
+        }
     }
 
     fun clear() = manager.cancel(NOTIFICATION_ID)

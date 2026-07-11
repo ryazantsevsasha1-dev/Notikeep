@@ -252,7 +252,12 @@ private fun EmptyState(captureStartedAt: Long?, modifier: Modifier) {
         Arrangement.Center,
         Alignment.CenterHorizontally,
     ) {
-        Icon(Icons.Filled.NotificationsOff, contentDescription = null, modifier = Modifier.size(48.dp))
+        Icon(
+            Icons.Filled.NotificationsOff,
+            contentDescription = null,
+            modifier = Modifier.size(48.dp),
+            tint = MaterialTheme.colorScheme.tertiary,
+        )
         Spacer(Modifier.size(16.dp))
         Text(
             stringResource(R.string.archive_empty_title),
