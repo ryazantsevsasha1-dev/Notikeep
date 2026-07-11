@@ -10,8 +10,8 @@ import javax.inject.Inject
 class SearchNotificationsUseCase @Inject constructor(
     private val repository: NotificationRepository,
 ) {
-    operator fun invoke(query: String): Flow<List<NotificationRecord>> {
+    operator fun invoke(query: String, from: Long? = null, to: Long? = null): Flow<List<NotificationRecord>> {
         val trimmed = query.trim()
-        return if (trimmed.isEmpty()) flowOf(emptyList()) else repository.search(trimmed)
+        return if (trimmed.isEmpty()) flowOf(emptyList()) else repository.search(trimmed, from, to)
     }
 }

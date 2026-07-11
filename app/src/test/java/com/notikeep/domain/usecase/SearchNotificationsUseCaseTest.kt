@@ -21,16 +21,16 @@ class SearchNotificationsUseCaseTest {
             assertTrue(awaitItem().isEmpty())
             awaitComplete()
         }
-        verify(exactly = 0) { repo.search(any()) }
+        verify(exactly = 0) { repo.search(any(), any(), any()) }
     }
 
     @Test
     fun `non-blank query is trimmed and delegated`() = runTest {
-        every { repo.search(any()) } returns flowOf(emptyList())
+        every { repo.search(any(), any(), any()) } returns flowOf(emptyList())
         useCase("  promo  ").test {
             awaitItem()
             awaitComplete()
         }
-        verify { repo.search("promo") }
+        verify { repo.search("promo", null, null) }
     }
 }

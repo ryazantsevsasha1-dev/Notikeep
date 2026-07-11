@@ -7,20 +7,35 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import com.notikeep.domain.model.ThemeMode
 
+/**
+ * One brand palette for the whole app: primaries and accents come from the
+ * launcher-icon blues (Color.kt), so every screen matches the icon. Screens must
+ * take colors from MaterialTheme.colorScheme, never hardcode them.
+ */
 private val LightColors = lightColorScheme(
-    primary = IndigoPrimary,
-    onPrimary = IndigoOnPrimary,
-    secondary = TealSecondary,
+    primary = BrandBlue,
+    onPrimary = BrandOnBlue,
+    primaryContainer = LightSurfaceVariant,
+    onPrimaryContainer = BrandBlueDeep,
+    secondary = BrandBlueBright,
+    onSecondary = BrandOnBlue,
+    tertiary = TealSecondary,
     background = LightBackground,
     surface = LightSurface,
+    surfaceVariant = LightSurfaceVariant,
 )
 
 private val DarkColors = darkColorScheme(
-    primary = IndigoPrimary,
-    onPrimary = IndigoOnPrimary,
-    secondary = TealSecondary,
+    primary = BrandBlueBright,
+    onPrimary = BrandOnBlue,
+    primaryContainer = DarkSurfaceVariant,
+    onPrimaryContainer = BrandOnBlue,
+    secondary = BrandBlueBright,
+    onSecondary = BrandOnBlue,
+    tertiary = TealSecondary,
     background = DarkBackground,
     surface = DarkSurface,
+    surfaceVariant = DarkSurfaceVariant,
 )
 
 @Composable

@@ -18,6 +18,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // AppMetrica API key comes from gradle.properties / CI secrets
+        // (notikeep.appmetrica.apiKey=...). Empty key = analytics stays local-only.
+        val appMetricaKey = (project.findProperty("notikeep.appmetrica.apiKey") as? String).orEmpty()
+        buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKey\"")
     }
 
     buildTypes {
@@ -32,6 +37,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -78,6 +84,12 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Coil for async app-icon loading
+    implementation(libs.coil.compose)
+
+    // AppMetrica analytics (consent-gated, anonymous UX events only)
+    implementation(libs.appmetrica.analytics)
 
     // Unit tests
     testImplementation(libs.junit)
