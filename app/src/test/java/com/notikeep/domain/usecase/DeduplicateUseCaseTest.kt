@@ -37,7 +37,7 @@ class DeduplicateUseCaseTest {
 
     @Test
     fun `EXACT_TEXT_WINDOW skips when a recent identical row exists`() = runTest {
-        coEvery { repository.countRecentByText(any(), any(), any(), any()) } returns 1
+        coEvery { repository.existsRecentByText(any(), any(), any(), any()) } returns true
 
         val written = useCase(record, DedupStrategy.EXACT_TEXT_WINDOW)
 
@@ -47,7 +47,7 @@ class DeduplicateUseCaseTest {
 
     @Test
     fun `EXACT_TEXT_WINDOW saves when nothing recent matches`() = runTest {
-        coEvery { repository.countRecentByText(any(), any(), any(), any()) } returns 0
+        coEvery { repository.existsRecentByText(any(), any(), any(), any()) } returns false
 
         val written = useCase(record, DedupStrategy.EXACT_TEXT_WINDOW)
 
@@ -57,12 +57,12 @@ class DeduplicateUseCaseTest {
 
     @Test
     fun `EXACT_TEXT_WINDOW queries with the correct window boundary`() = runTest {
-        coEvery { repository.countRecentByText(any(), any(), any(), any()) } returns 0
+        coEvery { repository.existsRecentByText(any(), any(), any(), any()) } returns false
 
         useCase(record, DedupStrategy.EXACT_TEXT_WINDOW)
 
         coVerify {
-            repository.countRecentByText(
+            repository.existsRecentByText(
                 record.packageName, record.title, record.text,
                 NOW - DedupStrategy.DEDUP_WINDOW_MS,
             )
@@ -71,7 +71,7 @@ class DeduplicateUseCaseTest {
 
     @Test
     fun `TITLE_ONLY_WINDOW skips on a recent same-title row`() = runTest {
-        coEvery { repository.countRecentByTitle(any(), any(), any()) } returns 2
+        coEvery { repository.existsRecentByTitle(any(), any(), any()) } returns true
 
         val written = useCase(record, DedupStrategy.TITLE_ONLY_WINDOW)
 
@@ -129,13 +129,13 @@ class DeduplicateUseCaseTest {
 
         assertTrue(written)
         coVerify { repository.update(any()) }
-        coVerify(exactly = 0) { repository.countRecentByText(any(), any(), any(), any()) }
+        coVerify(exactly = 0) { repository.existsRecentByText(any(), any(), any(), any()) }
     }
 
     @Test
     fun `COMBINED falls back to text window when key is absent`() = runTest {
         val keyless = record.copy(sbnKey = null)
-        coEvery { repository.countRecentByText(any(), any(), any(), any()) } returns 1
+        coEvery { repository.existsRecentByText(any(), any(), any(), any()) } returns true
 
         val written = useCase(keyless, DedupStrategy.COMBINED)
 

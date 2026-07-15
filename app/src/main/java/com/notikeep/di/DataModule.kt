@@ -36,6 +36,7 @@ object DataModule {
                 NotikeepDatabase.MIGRATION_2_3,
                 NotikeepDatabase.MIGRATION_3_4,
                 NotikeepDatabase.MIGRATION_4_5,
+                NotikeepDatabase.MIGRATION_5_6,
             )
             .build()
 

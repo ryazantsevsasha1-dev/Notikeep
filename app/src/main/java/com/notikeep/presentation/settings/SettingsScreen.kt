@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notikeep.domain.model.DedupStrategy
 import com.notikeep.domain.model.ThemeMode
+import com.notikeep.domain.model.UserSettings
 import com.notikeep.presentation.common.SystemSettings
 
 private val THEMES = listOf(
@@ -44,7 +45,7 @@ private val THEMES = listOf(
     ThemeMode.DARK to R.string.settings_theme_dark,
 )
 
-private val RETENTIONS = listOf(7, 30, 90)
+private val RETENTIONS = listOf(7, 30, 90, UserSettings.RETENTION_FOREVER)
 
 /** Label + short description for each dedup strategy shown in the experiment picker. */
 private val DEDUP_STRATEGIES = listOf(
@@ -116,7 +117,15 @@ fun SettingsScreen(
                     selected = settings.retentionDays == days,
                     onClick = { viewModel.setRetentionDays(days) },
                     shape = SegmentedButtonDefaults.itemShape(index, RETENTIONS.size),
-                ) { Text(stringResource(R.string.settings_retention_days, days)) }
+                ) {
+                    Text(
+                        if (days == UserSettings.RETENTION_FOREVER) {
+                            stringResource(R.string.settings_retention_forever)
+                        } else {
+                            stringResource(R.string.settings_retention_days, days)
+                        },
+                    )
+                }
             }
         }
 

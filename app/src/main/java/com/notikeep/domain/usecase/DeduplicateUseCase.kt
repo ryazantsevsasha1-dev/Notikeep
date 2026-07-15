@@ -48,10 +48,10 @@ class DeduplicateUseCase @Inject constructor(
     }
 
     private suspend fun hasRecentSameText(record: NotificationRecord, since: Long): Boolean =
-        repository.countRecentByText(record.packageName, record.title, record.text, since) > 0
+        repository.existsRecentByText(record.packageName, record.title, record.text, since)
 
     private suspend fun hasRecentSameTitle(record: NotificationRecord, since: Long): Boolean =
-        repository.countRecentByTitle(record.packageName, record.title, since) > 0
+        repository.existsRecentByTitle(record.packageName, record.title, since)
 
     /**
      * If a row with the same [NotificationRecord.sbnKey] exists, replace it in

@@ -2,6 +2,8 @@ package com.notikeep.presentation.archive
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.notikeep.domain.model.AppArchiveSummary
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.domain.port.Analytics
@@ -13,6 +15,7 @@ import com.notikeep.domain.usecase.SearchNotificationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,8 +36,6 @@ data class ArchiveUiState(
     val loading: Boolean = true,
     /** Messenger-style rows: one per app. Shown when the query is blank. */
     val summaries: List<AppArchiveSummary> = emptyList(),
-    /** Flat FTS results. Shown while the user is searching. */
-    val searchResults: List<NotificationRecord> = emptyList(),
     val searching: Boolean = false,
     val dateRange: DateRange = DateRange(null, null),
     /** Epoch millis capture began; powers the honest empty-state message. */
@@ -63,21 +64,24 @@ class ArchiveViewModel @Inject constructor(
         observeArchive(range.from, range.to)
     }
 
-    /** Search reacts to both the debounced query and the date filter. */
-    private val searchResults = combine(debouncedQuery, dateRange) { q, range -> q to range }
-        .flatMapLatest { (q, range) -> searchNotifications(q, range.from, range.to) }
+    /**
+     * Search results as a paged stream (memory-flat for large result sets). Kept
+     * out of [state] because PagingData must be collected by the UI directly.
+     */
+    val searchResults: Flow<PagingData<NotificationRecord>> =
+        combine(debouncedQuery, dateRange) { q, range -> q to range }
+            .flatMapLatest { (q, range) -> searchNotifications(q, range.from, range.to) }
+            .cachedIn(viewModelScope)
 
     val state: StateFlow<ArchiveUiState> = combine(
         summaries,
-        searchResults,
         debouncedQuery,
         dateRange,
         settings.observe(),
-    ) { groups, results, q, range, userSettings ->
+    ) { groups, q, range, userSettings ->
         ArchiveUiState(
             loading = false,
             summaries = groups,
-            searchResults = results,
             searching = q.isNotBlank(),
             dateRange = range,
             captureStartedAt = userSettings.firstAccessGrantedAt,

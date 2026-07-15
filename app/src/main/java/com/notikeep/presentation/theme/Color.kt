@@ -33,6 +33,11 @@ val DarkBackground = Color(0xFF10131D)
 val DarkSurface = Color(0xFF1A1E2C)
 val DarkSurfaceVariant = Color(0xFF262B3D)
 
+// Row highlight for apps whose notifications were silenced (hidden from the shade).
+// A soft blue wash that stays subtle behind text on each theme's surface.
+val SilencedRowLight = Color(0xFFE1E7FB) // pale indigo tint over the light surface
+val SilencedRowDark = Color(0xFF23304F)  // muted deep-blue tint over the dark surface
+
 // Semantic extras
 val SilencedAmber = Color(0xFFE0A100)
 val RuleIgnoreRed = Color(0xFFE53935)

@@ -1,5 +1,6 @@
 package com.notikeep.domain.usecase
 
+import androidx.paging.PagingData
 import com.notikeep.domain.model.NotificationRecord
 import com.notikeep.domain.repository.NotificationRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,8 +11,8 @@ import javax.inject.Inject
 class SearchNotificationsUseCase @Inject constructor(
     private val repository: NotificationRepository,
 ) {
-    operator fun invoke(query: String, from: Long? = null, to: Long? = null): Flow<List<NotificationRecord>> {
+    operator fun invoke(query: String, from: Long? = null, to: Long? = null): Flow<PagingData<NotificationRecord>> {
         val trimmed = query.trim()
-        return if (trimmed.isEmpty()) flowOf(emptyList()) else repository.search(trimmed, from, to)
+        return if (trimmed.isEmpty()) flowOf(PagingData.empty()) else repository.search(trimmed, from, to)
     }
 }

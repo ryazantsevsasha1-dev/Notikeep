@@ -52,8 +52,9 @@ class AppMetricaAnalytics @Inject constructor(
     override fun track(event: AnalyticsEvent) {
         scope.launch {
             if (!settings.observe().first().analyticsEnabled) return@launch
-            Log.d(TAG, "${event.name} ${attributes(event)}")
-            if (enabled) AppMetrica.reportEvent(event.name, attributes(event))
+            val attrs = attributes(event)
+            if (BuildConfig.DEBUG) Log.d(TAG, "${event.name} $attrs")
+            if (enabled) AppMetrica.reportEvent(event.name, attrs)
         }
     }
 

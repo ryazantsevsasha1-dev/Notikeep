@@ -18,5 +18,8 @@ data class UserSettings(
 ) {
     companion object {
         const val DEFAULT_RETENTION_DAYS = 30
+
+        /** Sentinel for "keep notifications forever" — retention cleanup is skipped. */
+        const val RETENTION_FOREVER = 0
     }
 }

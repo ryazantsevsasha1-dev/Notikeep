@@ -55,14 +55,17 @@ class DailySummaryNotifier @Inject constructor(
                 context, Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
 
-    // Permission is checked at runtime by canPost() and the notify() call is
-    // additionally wrapped in a SecurityException guard below.
-    @SuppressLint("MissingPermission")
-    fun update(total: Int, silenced: Int) {
-        if (!canPost()) return
+    /**
+     * Builds the summary notification for the given counts. Exposed so the always-alive
+     * listener service can adopt it as its foreground notification, which is what keeps
+     * the summary on screen after the app is swiped away (the process — and the app scope —
+     * would otherwise be killed, taking a plain notification with it).
+     */
+    fun build(total: Int, silenced: Int): android.app.Notification {
         ensureChannel()
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+        return NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stat_shield)
+            .setColor(BRAND_BLUE)
             .setContentTitle(context.getString(R.string.daily_summary_title))
             .setContentText(context.getString(R.string.daily_summary_text, total, silenced))
             .setOngoing(true)
@@ -72,10 +75,17 @@ class DailySummaryNotifier @Inject constructor(
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setShowWhen(false)
             .build()
+    }
+
+    // Permission is checked at runtime by canPost() and the notify() call is
+    // additionally wrapped in a SecurityException guard below.
+    @SuppressLint("MissingPermission")
+    fun update(total: Int, silenced: Int) {
+        if (!canPost()) return
         // canPost() already guards the permission; the try/catch covers the rare
         // race where the user revokes it between the check and this call.
         try {
-            manager.notify(NOTIFICATION_ID, notification)
+            manager.notify(NOTIFICATION_ID, build(total, silenced))
         } catch (_: SecurityException) {
             // Permission gone; nothing to show.
         }
@@ -83,8 +93,10 @@ class DailySummaryNotifier @Inject constructor(
 
     fun clear() = manager.cancel(NOTIFICATION_ID)
 
-    private companion object {
+    companion object {
         const val CHANNEL_ID = "notikeep_daily_summary"
         const val NOTIFICATION_ID = 4201
+        /** Brand blue (BrandBlue in the theme) used to tint the small icon. */
+        const val BRAND_BLUE = 0xFF2E44BE.toInt()
     }
 }
