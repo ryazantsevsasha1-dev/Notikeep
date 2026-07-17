@@ -18,3 +18,9 @@ local.properties
 keystore.properties
 *.jks
 *.keystore
+
+# RuStore / Play App Signing key export — never commit these.
+pepk.jar
+*-encrypted-key.zip
+upload-certificate.pem
+*.pem
