@@ -12,6 +12,10 @@
         tools:ignore="ProtectedPermissions" />
     <!-- Android 13+: required to show our own notifications (push campaigns, service alerts). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Keep the always-on daily summary on screen after the app is swiped away, by
+         promoting the listener to a foreground service. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:name=".NotikeepApp"
@@ -62,10 +66,14 @@
             android:name=".data.service.NotikeepListenerService"
             android:label="@string/listener_service_label"
             android:exported="false"
+            android:foregroundServiceType="specialUse"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="notikeep_daily_summary" />
         </service>
     </application>
 

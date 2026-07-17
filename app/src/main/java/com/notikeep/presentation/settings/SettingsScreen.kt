@@ -1,5 +1,6 @@
 package com.notikeep.presentation.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notikeep.domain.model.DedupStrategy
 import com.notikeep.domain.model.ThemeMode
+import com.notikeep.domain.model.UserSettings
+import com.notikeep.presentation.common.Legal
 import com.notikeep.presentation.common.SystemSettings
+import com.notikeep.presentation.common.openUrl
 
 private val THEMES = listOf(
     ThemeMode.SYSTEM to R.string.settings_theme_system,
@@ -44,7 +48,7 @@ private val THEMES = listOf(
     ThemeMode.DARK to R.string.settings_theme_dark,
 )
 
-private val RETENTIONS = listOf(7, 30, 90)
+private val RETENTIONS = listOf(7, 30, 90, UserSettings.RETENTION_FOREVER)
 
 /** Label + short description for each dedup strategy shown in the experiment picker. */
 private val DEDUP_STRATEGIES = listOf(
@@ -116,29 +120,19 @@ fun SettingsScreen(
                     selected = settings.retentionDays == days,
                     onClick = { viewModel.setRetentionDays(days) },
                     shape = SegmentedButtonDefaults.itemShape(index, RETENTIONS.size),
-                ) { Text(stringResource(R.string.settings_retention_days, days)) }
+                ) {
+                    Text(
+                        if (days == UserSettings.RETENTION_FOREVER) {
+                            stringResource(R.string.settings_retention_forever)
+                        } else {
+                            stringResource(R.string.settings_retention_days, days)
+                        },
+                    )
+                }
             }
         }
 
         SectionTitle(stringResource(R.string.settings_privacy_section))
-        Row(
-            Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.settings_analytics_title), style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    stringResource(R.string.settings_analytics_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Switch(
-                checked = settings.analyticsEnabled,
-                onCheckedChange = viewModel::setAnalyticsEnabled,
-            )
-        }
-
         Row(
             Modifier.fillMaxWidth().padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -156,6 +150,16 @@ fun SettingsScreen(
                 onCheckedChange = viewModel::setDailySummaryEnabled,
             )
         }
+
+        Text(
+            stringResource(R.string.settings_privacy_policy),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { openUrl(context, Legal.PRIVACY_POLICY_URL) }
+                .padding(vertical = 12.dp),
+        )
 
         SectionTitle(stringResource(R.string.settings_dedup_section))
         Text(

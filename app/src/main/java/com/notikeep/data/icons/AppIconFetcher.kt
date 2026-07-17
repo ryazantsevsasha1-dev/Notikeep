@@ -33,7 +33,14 @@ class AppIconFetcher(
 ) : Fetcher {
 
     override suspend fun fetch(): FetchResult {
-        val drawable = context.packageManager.getApplicationIcon(data.packageName)
+        // The app may have been uninstalled since its notification was captured;
+        // fall back to the system default icon instead of throwing (which would
+        // surface as a broken image / logged crash on every archive row for it).
+        val drawable = runCatching {
+            context.packageManager.getApplicationIcon(data.packageName)
+        }.getOrElse {
+            context.packageManager.defaultActivityIcon
+        }
         // Adaptive/vector icons are not memory-cacheable as-is; rasterize once.
         val bitmap = drawable.toBitmap(ICON_SIZE_PX, ICON_SIZE_PX)
         return DrawableResult(

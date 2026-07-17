@@ -14,7 +14,8 @@ interface SettingsRepository {
 
     suspend fun setRetentionDays(days: Int)
 
-    suspend fun setAnalyticsEnabled(enabled: Boolean)
+    /** Records that the user accepted the terms/privacy policy on first launch. */
+    suspend fun setTermsAccepted(accepted: Boolean)
 
     suspend fun setOnboardingCompleted(completed: Boolean)
 

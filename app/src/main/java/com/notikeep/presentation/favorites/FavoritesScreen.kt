@@ -41,42 +41,57 @@ fun FavoritesScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var pendingDelete by remember { mutableStateOf<AppArchiveSummary?>(null) }
 
-    when {
-        state.loading -> Column(
-            modifier.fillMaxSize(),
-            Arrangement.Center,
-            Alignment.CenterHorizontally,
-        ) {
-            CircularProgressIndicator()
-        }
+    Column(modifier.fillMaxSize()) {
+        // Screen title, aligned to the same horizontal padding as the search bar
+        // used on the other tabs so every screen's content starts at one line.
+        Text(
+            stringResource(R.string.favorites_title),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+        )
 
-        state.isEmpty -> Column(
-            modifier.fillMaxSize().padding(32.dp),
-            Arrangement.Center,
-            Alignment.CenterHorizontally,
-        ) {
-            Icon(Icons.Outlined.StarBorder, contentDescription = null, modifier = Modifier.size(48.dp))
-            Text(
-                stringResource(R.string.favorites_empty_title),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 16.dp),
-            )
-            Text(
-                stringResource(R.string.favorites_empty_hint),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-        }
+        when {
+            state.loading -> Column(
+                Modifier.fillMaxSize(),
+                Arrangement.Center,
+                Alignment.CenterHorizontally,
+            ) {
+                CircularProgressIndicator()
+            }
 
-        else -> LazyColumn(modifier.fillMaxSize()) {
-            items(state.summaries, key = { it.packageName }) { summary ->
-                AppSummaryListItem(
-                    summary,
-                    onClick = { onOpenApp(summary.packageName) },
-                    onLongClick = { pendingDelete = summary },
+            state.isEmpty -> Column(
+                Modifier.fillMaxSize().padding(32.dp),
+                Arrangement.Center,
+                Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    Icons.Outlined.StarBorder,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.tertiary,
                 )
-                HorizontalDivider()
+                Text(
+                    stringResource(R.string.favorites_empty_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 16.dp),
+                )
+                Text(
+                    stringResource(R.string.favorites_empty_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+
+            else -> LazyColumn(Modifier.fillMaxSize()) {
+                items(state.summaries, key = { it.packageName }) { summary ->
+                    AppSummaryListItem(
+                        summary,
+                        onClick = { onOpenApp(summary.packageName) },
+                        onLongClick = { pendingDelete = summary },
+                    )
+                    HorizontalDivider()
+                }
             }
         }
     }

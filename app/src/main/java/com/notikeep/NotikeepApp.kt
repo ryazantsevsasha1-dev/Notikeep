@@ -8,14 +8,20 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import coil.ImageLoader
 import coil.ImageLoaderFactory
+import com.notikeep.data.ads.AdsInitializer
 import com.notikeep.data.analytics.AppMetricaAnalytics
 import com.notikeep.data.icons.AppIconFetcher
 import com.notikeep.data.icons.AppIconKeyer
 import com.notikeep.data.notification.DailySummaryController
 import com.notikeep.data.work.ListenerWatchdogWorker
 import com.notikeep.data.work.RetentionCleanupWorker
+import com.notikeep.domain.repository.SettingsRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -26,6 +32,8 @@ class NotikeepApp : Application(), Configuration.Provider, ImageLoaderFactory {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var appMetrica: AppMetricaAnalytics
     @Inject lateinit var dailySummaryController: DailySummaryController
+    @Inject lateinit var adsInitializer: AdsInitializer
+    @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var appScope: CoroutineScope
 
     override val workManagerConfiguration: Configuration
@@ -43,9 +51,21 @@ class NotikeepApp : Application(), Configuration.Provider, ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         appMetrica.init(this)
+        adsInitializer.init()
         scheduleRetentionCleanup()
         scheduleListenerWatchdog()
         dailySummaryController.start(appScope)
+        syncAdConsent()
+    }
+
+    /** Keep the ad SDK's data-collection consent in sync with the privacy toggle. */
+    private fun syncAdConsent() {
+        appScope.launch {
+            settingsRepository.observe()
+                .map { it.analyticsEnabled }
+                .distinctUntilChanged()
+                .collect { adsInitializer.setUserConsent(it) }
+        }
     }
 
     private fun scheduleRetentionCleanup() {

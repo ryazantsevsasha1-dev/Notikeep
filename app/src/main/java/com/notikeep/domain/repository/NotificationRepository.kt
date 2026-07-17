@@ -1,5 +1,6 @@
 package com.notikeep.domain.repository
 
+import androidx.paging.PagingData
 import com.notikeep.domain.model.AppArchiveSummary
 import com.notikeep.domain.model.DailyCounts
 import com.notikeep.domain.model.NotificationRecord
@@ -13,20 +14,17 @@ interface NotificationRepository {
 
     suspend fun save(record: NotificationRecord)
 
-    /** Count of same-app notifications with identical title+text posted at or after [since]. */
-    suspend fun countRecentByText(packageName: String, title: String, text: String, since: Long): Int
+    /** Whether a same-app notification with identical title+text exists at or after [since]. */
+    suspend fun existsRecentByText(packageName: String, title: String, text: String, since: Long): Boolean
 
-    /** Count of same-app notifications with the same title posted at or after [since]. */
-    suspend fun countRecentByTitle(packageName: String, title: String, since: Long): Int
+    /** Whether a same-app notification with the same title exists at or after [since]. */
+    suspend fun existsRecentByTitle(packageName: String, title: String, since: Long): Boolean
 
     /** Newest stored record carrying [sbnKey], or null. */
     suspend fun findBySbnKey(sbnKey: String): NotificationRecord?
 
     /** Replaces an existing record in place (used to collapse notification updates). */
     suspend fun update(record: NotificationRecord)
-
-    /** All notifications, newest first, as a reactive stream. */
-    fun observeAll(): Flow<List<NotificationRecord>>
 
     /**
      * Messenger-style archive summary: one row per app, aggregated in the DB.
@@ -40,21 +38,24 @@ interface NotificationRepository {
     /** Live captured/silenced counts since [startOfDayMillis]; powers the daily summary. */
     fun observeDailyCounts(startOfDayMillis: Long): Flow<DailyCounts>
 
-    /** All notifications of one app, newest first. */
-    fun observeByPackage(packageName: String): Flow<List<NotificationRecord>>
+    /** Paged notifications of one app, newest first (all, or starred only). */
+    fun pagedByPackage(packageName: String, favoritesOnly: Boolean): Flow<PagingData<NotificationRecord>>
 
-    /** Starred notifications of one app, newest first. */
-    fun observeFavoritesByPackage(packageName: String): Flow<List<NotificationRecord>>
+    /** An app's display label as a stream, without loading its notifications. */
+    fun observeAppLabel(packageName: String): Flow<String?>
 
     /** Marks every notification of the app as read (clears the unread badge). */
     suspend fun markPackageRead(packageName: String)
 
     suspend fun setFavorite(id: Long, favorite: Boolean)
 
-    /** Full-text search over title and text, newest first, within an optional date range. */
-    fun search(query: String, from: Long? = null, to: Long? = null): Flow<List<NotificationRecord>>
+    /** Paged full-text search over title and text, newest first, within an optional date range. */
+    fun search(query: String, from: Long? = null, to: Long? = null): Flow<PagingData<NotificationRecord>>
 
     suspend fun delete(id: Long)
+
+    /** Deletes a specific set of notifications (multi-select delete). */
+    suspend fun deleteByIds(ids: List<Long>)
 
     /** Deletes every notification of one app (long-press delete in the archive). */
     suspend fun deleteByPackage(packageName: String)

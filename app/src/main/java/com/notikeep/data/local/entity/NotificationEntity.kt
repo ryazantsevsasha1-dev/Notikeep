@@ -15,6 +15,10 @@ import androidx.room.PrimaryKey
         Index("packageName"),
         Index("postedAt"),
         Index(value = ["packageName", "postedAt", "title", "text"], unique = true),
+        // Dedup lookups (EXACT_TEXT_WINDOW / TITLE_ONLY_WINDOW) filter by app + title.
+        Index(value = ["packageName", "title"]),
+        // BY_KEY dedup looks a row up by its OS notification key on every capture.
+        Index("sbnKey"),
     ],
 )
 data class NotificationEntity(

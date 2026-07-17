@@ -1,9 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+}
+
+// Release signing config is read from keystore.properties (kept out of git).
+// Absent file = no release signing (local dev / CI without secrets still builds).
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
 }
 
 android {
@@ -15,7 +24,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -25,13 +34,36 @@ android {
         buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKey\"")
     }
 
+    signingConfigs {
+        if (keystoreProps.isNotEmpty()) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            // Yandex demo banner — always fills, safe for development.
+            buildConfigField("String", "ADS_BANNER_UNIT_ID", "\"demo-banner-yandex\"")
+        }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
+            // Use the real keystore when keystore.properties is present.
+            signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // Real РСЯ block id from gradle.properties / CI (notikeep.ads.bannerId=...).
+            // Falls back to the demo banner until a real id is provided.
+            val bannerId = (project.findProperty("notikeep.ads.bannerId") as? String)
+                ?.takeIf { it.isNotBlank() } ?: "demo-banner-yandex"
+            buildConfigField("String", "ADS_BANNER_UNIT_ID", "\"$bannerId\"")
         }
     }
 
@@ -71,7 +103,12 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
     ksp(libs.androidx.room.compiler)
+
+    // Paging 3 (page-loaded per-app history and search)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -90,6 +127,9 @@ dependencies {
 
     // AppMetrica analytics (consent-gated, anonymous UX events only)
     implementation(libs.appmetrica.analytics)
+
+    // Yandex Mobile Ads (РСЯ)
+    implementation(libs.yandex.mobileads)
 
     // Unit tests
     testImplementation(libs.junit)

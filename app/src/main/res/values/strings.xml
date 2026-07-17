@@ -4,6 +4,32 @@
     <!-- Notification listener service label shown in system settings -->
     <string name="listener_service_label">Notikeep — сохранение уведомлений</string>
 
+    <!-- Common -->
+    <string name="action_clear">Очистить</string>
+
+    <!-- First-run consent -->
+    <string name="consent_title">Добро пожаловать в Notikeep</string>
+    <string name="consent_body">Notikeep сохраняет ваши уведомления локально на устройстве. Приложение использует аналитику и показывает рекламу. Продолжая, вы принимаете политику конфиденциальности.</string>
+    <string name="consent_policy_link">Политика конфиденциальности</string>
+    <string name="consent_accept">Принять и продолжить</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step1_title">Ничего не потеряется</string>
+    <string name="onboarding_step1_body">Notikeep сохраняет каждое уведомление в локальный архив на вашем телефоне. Без облака и без рекламы.</string>
+    <string name="onboarding_step1_action">Далее</string>
+    <string name="onboarding_step2_title">Сохраняем с этого момента</string>
+    <string name="onboarding_step2_body">Notikeep начнёт сохранять уведомления после того, как вы дадите доступ. Показать те, что пришли до установки, технически невозможно.</string>
+    <string name="onboarding_step2_action">Понятно</string>
+    <string name="onboarding_grant_title">Дайте доступ</string>
+    <string name="onboarding_grant_body">Notikeep нужен доступ к уведомлениям, чтобы их сохранять. Отключите оптимизацию батареи, чтобы слежение не прерывалось.</string>
+    <string name="onboarding_grant_access">Доступ к уведомлениям</string>
+    <string name="onboarding_grant_access_done">Доступ к уведомлениям — включено ✓</string>
+    <string name="onboarding_grant_battery">Оптимизация батареи</string>
+    <string name="onboarding_grant_battery_done">Работа в фоне разрешена ✓</string>
+    <string name="onboarding_grant_finish">Готово</string>
+    <string name="onboarding_grant_finish_ready">Всё готово — начать</string>
+    <string name="onboarding_grant_hint_pending">Без доступа к уведомлениям архив останется пустым.</string>
+
     <!-- Bottom navigation -->
     <string name="nav_archive">Архив</string>
     <string name="nav_favorites">Избранное</string>
@@ -26,6 +52,7 @@
     <string name="archive_delete_app_cancel">Отмена</string>
 
     <!-- Favorites -->
+    <string name="favorites_title">Избранное</string>
     <string name="favorites_empty_title">В избранном пусто</string>
     <string name="favorites_empty_hint">Отмечайте важные уведомления звёздочкой в архиве — они появятся здесь.</string>
 
@@ -37,6 +64,11 @@
     <string name="appdetail_delete_message">Это уведомление будет удалено из архива безвозвратно.</string>
     <string name="appdetail_delete_confirm">Удалить</string>
     <string name="appdetail_delete_cancel">Отмена</string>
+    <!-- Multi-select delete in the per-app screen -->
+    <string name="appdetail_selection_title">Выбрано: %1$d</string>
+    <string name="appdetail_selection_exit">Отменить выбор</string>
+    <string name="appdetail_delete_selected">Удалить выбранные</string>
+    <string name="appdetail_delete_selected_message">Удалить выбранные уведомления (%1$d)? Это действие нельзя отменить.</string>
 
     <!-- Rules (Apps tab) -->
     <string name="rules_search_placeholder">Поиск приложений</string>
@@ -45,6 +77,15 @@
     <string name="rules_usage_granted_already">Уже разрешил</string>
     <string name="rules_notify_on">Уведомления показываются</string>
     <string name="rules_notify_off">Уведомления скрываются</string>
+    <!-- Multi-select on the Apps tab -->
+    <string name="rules_selection_title">Выбрано: %1$d</string>
+    <string name="rules_select_all">Выбрать все</string>
+    <string name="rules_selection_exit">Отменить выбор</string>
+    <string name="rules_bulk_save">Сохранять</string>
+    <string name="rules_bulk_archive_only">Скрывать</string>
+    <string name="rules_bulk_ignore">Игнорировать</string>
+    <string name="rules_bulk_notify_on">Уведомления вкл.</string>
+    <string name="rules_bulk_notify_off">Уведомления выкл.</string>
 
     <!-- Settings -->
     <string name="settings_service_section">Состояние сервиса</string>
@@ -60,9 +101,9 @@
     <string name="settings_theme_dark">Тёмная</string>
     <string name="settings_retention_section">Срок хранения</string>
     <string name="settings_retention_days">%1$d дн</string>
+    <string name="settings_retention_forever">Всегда</string>
     <string name="settings_privacy_section">Приватность</string>
-    <string name="settings_analytics_title">Помогать улучшать приложение</string>
-    <string name="settings_analytics_subtitle">Анонимно, без содержимого уведомлений</string>
+    <string name="settings_privacy_policy">Политика конфиденциальности</string>
     <string name="settings_daily_summary_title">Показывать сводку за день</string>
     <string name="settings_daily_summary_subtitle">Уведомление с числом сохранённых и скрытых за сегодня</string>
     <string name="settings_dedup_section">Антидубль (эксперимент)</string>

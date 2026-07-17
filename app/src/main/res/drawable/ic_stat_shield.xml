@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Monochrome status-bar icon (Notikeep shield with a bell cut out).
+  Notification small icons must be a single flat colour on transparency; the
+  system tints them. Using a coloured launcher here shows only a grey square.
+  fillType="evenOdd" makes the inner bell path a hole in the shield silhouette.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,2 L20,4.6 L20,11.2
+            C20,16.4 16.6,20.6 12,22.4
+            C7.4,20.6 4,16.4 4,11.2
+            L4,4.6 Z
+            M12,6.2
+            C12.9,6.2 13.6,6.9 13.6,7.8
+            C13.6,8 13.55,8.2 13.45,8.4
+            C15.1,8.85 16.3,10.35 16.3,12.2
+            L16.3,14.7
+            C16.3,15.2 16.45,15.7 16.8,16.05
+            L17.5,16.75
+            C17.75,17 17.6,17.5 17.15,17.5
+            L6.85,17.5
+            C6.4,17.5 6.25,17 6.5,16.75
+            L7.2,16.05
+            C7.55,15.7 7.7,15.2 7.7,14.7
+            L7.7,12.2
+            C7.7,10.35 8.9,8.85 10.55,8.4
+            C10.45,8.2 10.4,8 10.4,7.8
+            C10.4,6.9 11.1,6.2 12,6.2 Z" />
+</vector>

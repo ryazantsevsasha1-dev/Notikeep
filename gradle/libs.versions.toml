@@ -11,6 +11,7 @@ activityCompose = "1.9.3"
 composeBom = "2024.12.01"
 navigationCompose = "2.8.5"
 room = "2.6.1"
+paging = "3.3.5"
 hilt = "2.52"
 hiltNavigationCompose = "1.2.0"
 hiltWork = "1.2.0"
@@ -19,6 +20,7 @@ workManager = "2.10.0"
 coroutines = "1.9.0"
 coil = "2.7.0"
 appmetrica = "7.9.0"
+yandexAds = "7.8.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -49,6 +51,11 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
+
+# Paging 3 (page-loaded lists so per-app history and search stay memory-flat)
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -67,6 +74,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 
 # AppMetrica (Yandex) — RU-market analytics, works without Google Play Services
 appmetrica-analytics = { group = "io.appmetrica.analytics", name = "analytics", version.ref = "appmetrica" }
+
+# Yandex Mobile Ads (РСЯ) — banner/interstitial ads
+yandex-mobileads = { group = "com.yandex.android", name = "mobileads", version.ref = "yandexAds" }
 
 # Tests
 junit = { group = "junit", name = "junit", version.ref = "junit" }

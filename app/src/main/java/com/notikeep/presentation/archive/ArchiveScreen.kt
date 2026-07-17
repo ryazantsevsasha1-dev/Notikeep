@@ -44,9 +44,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.notikeep.R
 import com.notikeep.domain.model.AppArchiveSummary
 import com.notikeep.domain.model.NotificationRecord
+import com.notikeep.presentation.ads.AdBanner
 import com.notikeep.presentation.common.AppIconImage
 import com.notikeep.presentation.common.AppSummaryListItem
 import com.notikeep.presentation.common.NotikeepSearchBar
@@ -61,6 +66,7 @@ fun ArchiveScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
+    val searchResults = viewModel.searchResults.collectAsLazyPagingItems()
     var detail by remember { mutableStateOf<NotificationRecord?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<AppArchiveSummary?>(null) }
@@ -93,7 +99,7 @@ fun ArchiveScreen(
         when {
             state.loading -> LoadingState(Modifier.weight(1f))
             state.searching -> SearchResults(
-                results = state.searchResults,
+                results = searchResults,
                 onClick = { detail = it; viewModel.onDetailOpened() },
                 modifier = Modifier.weight(1f),
             )
@@ -109,6 +115,9 @@ fun ArchiveScreen(
                 }
             }
         }
+
+        // Banner sits at the very bottom, below the list — never over the content.
+        AdBanner()
     }
 
     if (showDatePicker) {
@@ -176,18 +185,20 @@ private fun DateRangeDialog(onConfirm: (Long?, Long?) -> Unit, onDismiss: () -> 
 
 @Composable
 private fun SearchResults(
-    results: List<NotificationRecord>,
+    results: LazyPagingItems<NotificationRecord>,
     onClick: (NotificationRecord) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (results.isEmpty()) {
+    val loading = results.loadState.refresh is LoadState.Loading
+    if (!loading && results.itemCount == 0) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(stringResource(R.string.archive_search_empty), style = MaterialTheme.typography.bodyMedium)
         }
         return
     }
     LazyColumn(modifier.fillMaxSize()) {
-        items(results, key = { it.id }) { record ->
+        items(count = results.itemCount, key = results.itemKey { it.id }) { index ->
+            val record = results[index] ?: return@items
             SearchResultRow(record, onClick = { onClick(record) })
             HorizontalDivider()
         }
@@ -252,7 +263,12 @@ private fun EmptyState(captureStartedAt: Long?, modifier: Modifier) {
         Arrangement.Center,
         Alignment.CenterHorizontally,
     ) {
-        Icon(Icons.Filled.NotificationsOff, contentDescription = null, modifier = Modifier.size(48.dp))
+        Icon(
+            Icons.Filled.NotificationsOff,
+            contentDescription = null,
+            modifier = Modifier.size(48.dp),
+            tint = MaterialTheme.colorScheme.tertiary,
+        )
         Spacer(Modifier.size(16.dp))
         Text(
             stringResource(R.string.archive_empty_title),

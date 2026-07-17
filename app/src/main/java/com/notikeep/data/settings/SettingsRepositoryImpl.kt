@@ -23,7 +23,8 @@ class SettingsRepositoryImpl @Inject constructor(
         UserSettings(
             themeMode = prefs[Keys.THEME]?.let(ThemeMode::valueOf) ?: ThemeMode.SYSTEM,
             retentionDays = prefs[Keys.RETENTION] ?: UserSettings.DEFAULT_RETENTION_DAYS,
-            analyticsEnabled = prefs[Keys.ANALYTICS] ?: true,
+            // analyticsEnabled is constant true (see UserSettings) — no key persisted.
+            termsAccepted = prefs[Keys.TERMS_ACCEPTED] ?: false,
             onboardingCompleted = prefs[Keys.ONBOARDING_DONE] ?: false,
             firstAccessGrantedAt = prefs[Keys.FIRST_ACCESS],
             defaultRulesSeeded = prefs[Keys.DEFAULT_RULES_SEEDED] ?: false,
@@ -38,8 +39,8 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setRetentionDays(days: Int) =
         edit { it[Keys.RETENTION] = days }
 
-    override suspend fun setAnalyticsEnabled(enabled: Boolean) =
-        edit { it[Keys.ANALYTICS] = enabled }
+    override suspend fun setTermsAccepted(accepted: Boolean) =
+        edit { it[Keys.TERMS_ACCEPTED] = accepted }
 
     override suspend fun setOnboardingCompleted(completed: Boolean) =
         edit { it[Keys.ONBOARDING_DONE] = completed }
@@ -64,7 +65,7 @@ class SettingsRepositoryImpl @Inject constructor(
     private object Keys {
         val THEME = stringPreferencesKey("theme_mode")
         val RETENTION = intPreferencesKey("retention_days")
-        val ANALYTICS = booleanPreferencesKey("analytics_enabled")
+        val TERMS_ACCEPTED = booleanPreferencesKey("terms_accepted")
         val ONBOARDING_DONE = booleanPreferencesKey("onboarding_completed")
         val FIRST_ACCESS = longPreferencesKey("first_access_granted_at")
         val DEFAULT_RULES_SEEDED = booleanPreferencesKey("default_rules_seeded")

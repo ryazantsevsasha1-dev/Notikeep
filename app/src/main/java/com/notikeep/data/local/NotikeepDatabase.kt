@@ -12,7 +12,7 @@ import com.notikeep.data.local.entity.NotificationEntity
 
 @Database(
     entities = [NotificationEntity::class, AppRuleEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(NotikeepConverters::class)
@@ -64,6 +64,23 @@ abstract class NotikeepDatabase : RoomDatabase() {
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE notifications ADD COLUMN sbnKey TEXT")
+            }
+        }
+
+        /**
+         * v6: indexes that keep per-capture dedup lookups cheap as the table grows.
+         * Names must match what Room derives from @Index or schema validation fails.
+         */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_notifications_packageName_title` " +
+                        "ON `notifications` (`packageName`, `title`)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_notifications_sbnKey` " +
+                        "ON `notifications` (`sbnKey`)",
+                )
             }
         }
     }

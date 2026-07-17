@@ -10,3 +10,14 @@
 
 # Keep Kotlin metadata for reflection-free serialization safety.
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+
+# Yandex Mobile Ads (РСЯ) — the SDK ships consumer rules, but keep its public API
+# and suppress warnings for optional integrations it references reflectively.
+-keep class com.yandex.mobile.ads.** { *; }
+-keep class com.yandex.div.** { *; }
+-dontwarn com.yandex.mobile.ads.**
+-dontwarn com.yandex.div.**
+
+# AppMetrica analytics.
+-keep class io.appmetrica.analytics.** { *; }
+-dontwarn io.appmetrica.analytics.**

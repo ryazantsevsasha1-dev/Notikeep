@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.notikeep.domain.model.UserSettings
 import com.notikeep.domain.repository.NotificationRepository
 import com.notikeep.domain.repository.SettingsRepository
 import dagger.assisted.Assisted
@@ -25,6 +26,8 @@ class RetentionCleanupWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val retentionDays = settings.observe().first().retentionDays
+        // "Forever" disables cleanup entirely so nothing is ever pruned.
+        if (retentionDays == UserSettings.RETENTION_FOREVER) return Result.success()
         val threshold = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(retentionDays.toLong())
         notifications.deleteOlderThan(threshold)
         return Result.success()

@@ -42,6 +42,7 @@ fun AppSummaryRow.toDomain() = AppArchiveSummary(
     lastPostedAt = lastPostedAt,
     unreadCount = unreadCount,
     totalCount = totalCount,
+    silencedCount = silencedCount,
 )
 
 fun AppRuleEntity.toDomain() = AppRule(

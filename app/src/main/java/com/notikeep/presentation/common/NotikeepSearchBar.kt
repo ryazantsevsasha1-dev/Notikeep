@@ -12,7 +12,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.notikeep.R
 
 /**
  * Shared messenger-style search field used on both the Archive and Apps tabs,
@@ -35,7 +37,7 @@ fun NotikeepSearchBar(
         trailingIcon = {
             when {
                 query.isNotEmpty() -> IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Filled.Close, contentDescription = "Очистить")
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.action_clear))
                 }
                 trailingExtra != null -> trailingExtra()
             }

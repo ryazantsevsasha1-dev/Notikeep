@@ -38,7 +38,11 @@ data class RulesUiState(
     val rows: List<AppRuleRow> = emptyList(),
     /** True when we should show the "grant usage access" banner. */
     val usagePermissionMissing: Boolean = false,
-)
+    /** Selected package names; non-empty means the multi-select bar is shown. */
+    val selected: Set<String> = emptySet(),
+) {
+    val inSelectionMode: Boolean get() = selected.isNotEmpty()
+}
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
@@ -53,6 +57,7 @@ class RulesViewModel @Inject constructor(
     private val apps = MutableStateFlow<List<InstalledApp>>(emptyList())
     private val usage = MutableStateFlow<Map<String, Long>>(emptyMap())
     private val usagePermission = MutableStateFlow(usageStats.hasPermission())
+    private val selected = MutableStateFlow<Set<String>>(emptySet())
 
     val query = MutableStateFlow("")
 
@@ -64,7 +69,7 @@ class RulesViewModel @Inject constructor(
         .debounce(200)
         .onStart { emit("") }
 
-    val state = combine(apps, usage, ruleRepository.observeAll(), debouncedQuery, usagePermission) {
+    private val content = combine(apps, usage, ruleRepository.observeAll(), debouncedQuery, usagePermission) {
             installed, usageMap, rules, q, hasUsage ->
         val stateByPackage = rules.associate { it.packageName to it.state }
         val filtered = if (q.isBlank()) installed else installed.filter {
@@ -87,13 +92,23 @@ class RulesViewModel @Inject constructor(
             usagePermissionMissing = !hasUsage,
         )
     }
+
+    val state = combine(content, selected) { ui, sel ->
+        // Drop any selected packages no longer present (e.g. filtered out or uninstalled).
+        val present = ui.rows.mapTo(HashSet()) { it.packageName }
+        ui.copy(selected = sel intersect present)
+    }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RulesUiState())
 
     init {
         viewModelScope.launch {
-            apps.value = installedApps.listLaunchable()
+            // Fetch usage BEFORE apps so the very first rendered list is already sorted
+            // by usage. Assigning apps last is what triggers the first `content` emission
+            // (the combine stays gated while apps is empty), so the list never renders in
+            // A-Z order and then visibly re-sorts/jumps under the user.
             usage.value = usageStats.foregroundTimeByPackage()
+            apps.value = installedApps.listLaunchable()
             seedTopAppsIfNeeded()
         }
     }
@@ -124,6 +139,53 @@ class RulesViewModel @Inject constructor(
             ruleRepository.setState(row.packageName, row.label, state)
             analytics.track(AnalyticsEvent.RuleChanged(state.name))
         }
+    }
+
+    // --- Multi-select ---------------------------------------------------------
+
+    fun toggleSelection(packageName: String) {
+        selected.value = selected.value.let { if (packageName in it) it - packageName else it + packageName }
+    }
+
+    fun selectAll() {
+        selected.value = state.value.rows.mapTo(HashSet()) { it.packageName }
+    }
+
+    fun clearSelection() {
+        selected.value = emptySet()
+    }
+
+    /** Applies one rule to every selected app in a single batch, then exits selection. */
+    fun applyRuleToSelected(newState: RuleState) {
+        val targets = selectedRows()
+        if (targets.isEmpty()) return
+        viewModelScope.launch {
+            targets.forEach { row ->
+                if (row.state != newState) {
+                    ruleRepository.setState(row.packageName, row.label, newState)
+                }
+            }
+            analytics.track(AnalyticsEvent.RuleChanged(newState.name))
+            clearSelection()
+        }
+    }
+
+    /** Bulk toggle of the "notify" flag, preserving each app's save state. */
+    fun setNotifyForSelected(notify: Boolean) {
+        val targets = selectedRows()
+        if (targets.isEmpty()) return
+        viewModelScope.launch {
+            targets.forEach { row ->
+                val next = RuleState.from(save = row.state.saves, notify = notify)
+                if (next != row.state) ruleRepository.setState(row.packageName, row.label, next)
+            }
+            clearSelection()
+        }
+    }
+
+    private fun selectedRows(): List<AppRuleRow> {
+        val sel = selected.value
+        return state.value.rows.filter { it.packageName in sel }
     }
 
     /**

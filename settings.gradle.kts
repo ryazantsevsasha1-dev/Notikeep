@@ -19,6 +19,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Yandex Mobile Ads (РСЯ) SDK is published in Yandex's own Maven repo.
+        maven { url = uri("https://maven.yandexcloud.net/repository/mobile-maven") }
     }
 }
 
