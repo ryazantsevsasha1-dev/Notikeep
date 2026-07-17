@@ -15,6 +15,16 @@ val keystoreProps = Properties().apply {
     if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
 }
 
+// Secrets (analytics key, ad unit id) live in local.properties (kept out of git).
+// findProperty() only reads gradle.properties, so load local.properties explicitly
+// and let it take precedence; gradle.properties / CI props remain a fallback.
+val localPropsFile = rootProject.file("local.properties")
+val localProps = Properties().apply {
+    if (localPropsFile.exists()) localPropsFile.inputStream().use { load(it) }
+}
+fun secretProp(name: String): String =
+    (localProps.getProperty(name) ?: project.findProperty(name) as? String).orEmpty()
+
 android {
     namespace = "com.notikeep"
     compileSdk = 36
@@ -28,9 +38,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // AppMetrica API key comes from gradle.properties / CI secrets
+        // AppMetrica API key comes from local.properties / CI secrets
         // (notikeep.appmetrica.apiKey=...). Empty key = analytics stays local-only.
-        val appMetricaKey = (project.findProperty("notikeep.appmetrica.apiKey") as? String).orEmpty()
+        val appMetricaKey = secretProp("notikeep.appmetrica.apiKey")
         buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKey\"")
     }
 
@@ -59,10 +69,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // Real РСЯ block id from gradle.properties / CI (notikeep.ads.bannerId=...).
+            // Real РСЯ block id from local.properties / CI (notikeep.ads.bannerId=...).
             // Falls back to the demo banner until a real id is provided.
-            val bannerId = (project.findProperty("notikeep.ads.bannerId") as? String)
-                ?.takeIf { it.isNotBlank() } ?: "demo-banner-yandex"
+            val bannerId = secretProp("notikeep.ads.bannerId")
+                .takeIf { it.isNotBlank() } ?: "demo-banner-yandex"
             buildConfigField("String", "ADS_BANNER_UNIT_ID", "\"$bannerId\"")
         }
     }
