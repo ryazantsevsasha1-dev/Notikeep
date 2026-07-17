@@ -46,9 +46,6 @@ class SettingsViewModel @Inject constructor(
 
     fun setRetentionDays(days: Int) = viewModelScope.launch { settings.setRetentionDays(days) }
 
-    fun setAnalyticsEnabled(enabled: Boolean) =
-        viewModelScope.launch { settings.setAnalyticsEnabled(enabled) }
-
     fun setDailySummaryEnabled(enabled: Boolean) =
         viewModelScope.launch { settings.setDailySummaryEnabled(enabled) }
 

@@ -1,5 +1,6 @@
 package com.notikeep.presentation.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +38,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notikeep.domain.model.DedupStrategy
 import com.notikeep.domain.model.ThemeMode
 import com.notikeep.domain.model.UserSettings
+import com.notikeep.presentation.common.Legal
 import com.notikeep.presentation.common.SystemSettings
+import com.notikeep.presentation.common.openUrl
 
 private val THEMES = listOf(
     ThemeMode.SYSTEM to R.string.settings_theme_system,
@@ -136,24 +139,6 @@ fun SettingsScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.settings_analytics_title), style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    stringResource(R.string.settings_analytics_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Switch(
-                checked = settings.analyticsEnabled,
-                onCheckedChange = viewModel::setAnalyticsEnabled,
-            )
-        }
-
-        Row(
-            Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.settings_daily_summary_title), style = MaterialTheme.typography.bodyLarge)
                 Text(
                     stringResource(R.string.settings_daily_summary_subtitle),
@@ -165,6 +150,16 @@ fun SettingsScreen(
                 onCheckedChange = viewModel::setDailySummaryEnabled,
             )
         }
+
+        Text(
+            stringResource(R.string.settings_privacy_policy),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { openUrl(context, Legal.PRIVACY_POLICY_URL) }
+                .padding(vertical = 12.dp),
+        )
 
         SectionTitle(stringResource(R.string.settings_dedup_section))
         Text(

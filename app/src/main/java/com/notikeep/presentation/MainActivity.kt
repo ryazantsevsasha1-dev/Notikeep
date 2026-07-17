@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notikeep.data.service.ListenerRebinder
 import com.notikeep.presentation.navigation.NotikeepNavHost
+import com.notikeep.presentation.onboarding.ConsentScreen
 import com.notikeep.presentation.theme.NotikeepTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,7 +57,11 @@ class MainActivity : ComponentActivity() {
             NotikeepTheme(themeMode = state.themeMode) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     if (state.loaded) {
-                        NotikeepNavHost(onboardingCompleted = state.onboardingCompleted)
+                        if (!state.termsAccepted) {
+                            ConsentScreen(onAccept = viewModel::acceptTerms)
+                        } else {
+                            NotikeepNavHost(onboardingCompleted = state.onboardingCompleted)
+                        }
                     }
                 }
             }

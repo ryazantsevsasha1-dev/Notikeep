@@ -7,6 +7,12 @@
     <!-- Common -->
     <string name="action_clear">Очистить</string>
 
+    <!-- First-run consent -->
+    <string name="consent_title">Добро пожаловать в Notikeep</string>
+    <string name="consent_body">Notikeep сохраняет ваши уведомления локально на устройстве. Приложение использует аналитику и показывает рекламу. Продолжая, вы принимаете политику конфиденциальности.</string>
+    <string name="consent_policy_link">Политика конфиденциальности</string>
+    <string name="consent_accept">Принять и продолжить</string>
+
     <!-- Onboarding -->
     <string name="onboarding_step1_title">Ничего не потеряется</string>
     <string name="onboarding_step1_body">Notikeep сохраняет каждое уведомление в локальный архив на вашем телефоне. Без облака и без рекламы.</string>
@@ -97,8 +103,7 @@
     <string name="settings_retention_days">%1$d дн</string>
     <string name="settings_retention_forever">Всегда</string>
     <string name="settings_privacy_section">Приватность</string>
-    <string name="settings_analytics_title">Помогать улучшать приложение</string>
-    <string name="settings_analytics_subtitle">Анонимно, без содержимого уведомлений</string>
+    <string name="settings_privacy_policy">Политика конфиденциальности</string>
     <string name="settings_daily_summary_title">Показывать сводку за день</string>
     <string name="settings_daily_summary_subtitle">Уведомление с числом сохранённых и скрытых за сегодня</string>
     <string name="settings_dedup_section">Антидубль (эксперимент)</string>

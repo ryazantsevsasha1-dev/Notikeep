@@ -3,7 +3,6 @@ package com.notikeep.presentation.common
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.notikeep.domain.model.AppArchiveSummary
@@ -37,7 +37,10 @@ fun AppSummaryListItem(
 ) {
     // Apps with silenced (hidden-from-shade) notifications get a soft blue wash so the
     // user can see at a glance which rows were quietly captured. Themed for light/dark.
-    val dark = isSystemInDarkTheme()
+    // Derive dark from the app's own color scheme (not isSystemInDarkTheme): the user's
+    // in-app theme override can differ from the system, and mismatching would put a pale
+    // light wash under light-on-dark text (or vice-versa), making the row unreadable.
+    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val highlight = if (summary.hasSilenced) {
         if (dark) SilencedRowDark else SilencedRowLight
     } else {
