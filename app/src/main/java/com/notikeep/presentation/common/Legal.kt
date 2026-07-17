@@ -6,8 +6,7 @@ import android.net.Uri
 
 /** Single source of truth for legal document URLs. */
 object Legal {
-    // TODO: replace with the real GitHub Pages URL before release.
-    const val PRIVACY_POLICY_URL = "https://REPLACE_ME.github.io/notikeep-privacy/"
+    const val PRIVACY_POLICY_URL = "https://ryazantsevsasha1-dev.github.io/Notikeep/"
 }
 
 /** Opens [url] in the user's browser; a no-op if no browser can handle it. */
