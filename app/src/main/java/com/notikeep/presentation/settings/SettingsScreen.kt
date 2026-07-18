@@ -3,6 +3,8 @@ package com.notikeep.presentation.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,16 +14,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -103,32 +108,31 @@ fun SettingsScreen(
         }
 
         SectionTitle(stringResource(R.string.settings_theme_section))
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            THEMES.forEachIndexed { index, (mode, labelRes) ->
-                SegmentedButton(
+        // FlowRow + chips instead of a segmented row: at large accessibility font
+        // scales whole options wrap to the next line, while segmented buttons
+        // squeezed their labels letter-by-letter ("Систем/а").
+        ChoiceChipRow {
+            THEMES.forEach { (mode, labelRes) ->
+                ChoiceChip(
+                    label = stringResource(labelRes),
                     selected = settings.themeMode == mode,
                     onClick = { viewModel.setTheme(mode) },
-                    shape = SegmentedButtonDefaults.itemShape(index, THEMES.size),
-                ) { Text(stringResource(labelRes)) }
+                )
             }
         }
 
         SectionTitle(stringResource(R.string.settings_retention_section))
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            RETENTIONS.forEachIndexed { index, days ->
-                SegmentedButton(
+        ChoiceChipRow {
+            RETENTIONS.forEach { days ->
+                ChoiceChip(
+                    label = if (days == UserSettings.RETENTION_FOREVER) {
+                        stringResource(R.string.settings_retention_forever)
+                    } else {
+                        stringResource(R.string.settings_retention_days, days)
+                    },
                     selected = settings.retentionDays == days,
                     onClick = { viewModel.setRetentionDays(days) },
-                    shape = SegmentedButtonDefaults.itemShape(index, RETENTIONS.size),
-                ) {
-                    Text(
-                        if (days == UserSettings.RETENTION_FOREVER) {
-                            stringResource(R.string.settings_retention_forever)
-                        } else {
-                            stringResource(R.string.settings_retention_days, days)
-                        },
-                    )
-                }
+                )
             }
         }
 
@@ -184,6 +188,36 @@ fun SettingsScreen(
             Text(stringResource(R.string.settings_clear_archive))
         }
     }
+}
+
+/** Chips that wrap whole options to the next line at large font scales. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ChoiceChipRow(content: @Composable () -> Unit) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) { content() }
+}
+
+@Composable
+private fun ChoiceChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    Icons.Filled.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                )
+            }
+        } else {
+            null
+        },
+    )
 }
 
 @Composable

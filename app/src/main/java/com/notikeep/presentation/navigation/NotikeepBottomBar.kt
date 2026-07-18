@@ -24,16 +24,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Bottom navigation bar in the "Sber" style: every tab shows an icon over an
@@ -141,12 +146,48 @@ private fun BottomBarItem(
                 modifier = Modifier.size(24.dp).scale(iconScale),
             )
         }
-        Text(
+        AutoShrinkLabel(
             text = stringResource(tab.labelRes),
-            style = MaterialTheme.typography.labelMedium,
             color = contentColor,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
             modifier = Modifier.padding(top = 2.dp),
         )
     }
 }
+
+/**
+ * One-line tab label that shrinks its font until the text fits, instead of
+ * truncating ("Избранно…") or overlapping neighbours at large accessibility
+ * font scales. Invisible until the fitting pass settles, so the shrink never
+ * flickers on screen.
+ */
+@Composable
+private fun AutoShrinkLabel(
+    text: String,
+    color: Color,
+    fontWeight: FontWeight,
+    modifier: Modifier = Modifier,
+) {
+    val base = MaterialTheme.typography.labelMedium
+    var style by remember(text, base) { mutableStateOf(base) }
+    var fitted by remember(text, base) { mutableStateOf(false) }
+    Text(
+        text = text,
+        style = style,
+        color = color,
+        fontWeight = fontWeight,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Clip,
+        modifier = modifier.drawWithContent { if (fitted) drawContent() },
+        onTextLayout = { result ->
+            if (result.didOverflowWidth && style.fontSize > MIN_LABEL_SIZE) {
+                style = style.copy(fontSize = style.fontSize * 0.9f)
+            } else {
+                fitted = true
+            }
+        },
+    )
+}
+
+private val MIN_LABEL_SIZE = 9.sp

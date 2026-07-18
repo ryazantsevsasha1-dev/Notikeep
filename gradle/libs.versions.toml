@@ -19,8 +19,11 @@ datastore = "1.1.1"
 workManager = "2.10.0"
 coroutines = "1.9.0"
 coil = "2.7.0"
-appmetrica = "7.9.0"
-yandexAds = "7.8.0"
+# Latest 7.x lines: drop-in upgrades (no 8.0 API migration) that pick up the
+# SDK-side fixes for init-time NPE/ANR crashes and 16 KB page-size alignment.
+appmetrica = "7.14.3"
+yandexAds = "7.18.7"
+varioqub = "0.9.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -77,6 +80,11 @@ appmetrica-analytics = { group = "io.appmetrica.analytics", name = "analytics", 
 
 # Yandex Mobile Ads (РСЯ) — banner/interstitial ads
 yandex-mobileads = { group = "com.yandex.android", name = "mobileads", version.ref = "yandexAds" }
+
+# Varioqub (Yandex remote config / A/B) — ad placement & frequency knobs without app updates.
+# `config` is the SDK core (Varioqub class); the adapter wires it to AppMetrica.
+varioqub-config = { group = "com.yandex.varioqub", name = "config", version.ref = "varioqub" }
+varioqub-appmetrica = { group = "com.yandex.varioqub", name = "appmetrica-adapter", version.ref = "varioqub" }
 
 # Tests
 junit = { group = "junit", name = "junit", version.ref = "junit" }

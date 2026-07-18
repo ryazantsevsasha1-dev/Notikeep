@@ -21,3 +21,7 @@
 # AppMetrica analytics.
 -keep class io.appmetrica.analytics.** { *; }
 -dontwarn io.appmetrica.analytics.**
+
+# Varioqub remote config (rides on AppMetrica).
+-keep class com.yandex.varioqub.** { *; }
+-dontwarn com.yandex.varioqub.**

@@ -5,14 +5,8 @@ import android.util.Log
 import com.notikeep.BuildConfig
 import com.notikeep.domain.port.Analytics
 import com.notikeep.domain.port.AnalyticsEvent
-import com.notikeep.domain.repository.SettingsRepository
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,41 +15,33 @@ import javax.inject.Singleton
  * Google Play Services, RuStore-friendly, and pairs with Yandex Mobile Ads later.
  *
  * Privacy rules (RESEARCH.md, anti-pattern #3) still apply: only anonymous UX
- * events go out, never notification content. The user's consent switch maps to
- * AppMetrica's data-sending flag, and with no API key configured the class
- * degrades to local logging only.
+ * events go out, never notification content. Activation happens only after the
+ * user accepts the terms (see NotikeepApp), which is the legal basis for
+ * collection; with no API key configured the class degrades to local logging only.
  */
 @Singleton
-class AppMetricaAnalytics @Inject constructor(
-    private val settings: SettingsRepository,
-    private val scope: CoroutineScope,
-) : Analytics {
+class AppMetricaAnalytics @Inject constructor() : Analytics {
 
     private val enabled = BuildConfig.APPMETRICA_API_KEY.isNotBlank()
 
-    /** Call once from Application.onCreate; a no-op without an API key. */
+    /** Events must not reach the SDK before [init] has activated it. */
+    @Volatile private var activated = false
+
+    /** Called once from the app, only after terms acceptance; a no-op without an API key. */
     fun init(app: Application) {
-        if (!enabled) return
+        if (!enabled || activated) return
         val config = AppMetricaConfig.newConfigBuilder(BuildConfig.APPMETRICA_API_KEY)
             .withSessionTimeout(30)
             .build()
         AppMetrica.activate(app, config)
-        // Keep the SDK in sync with the consent switch, now and on every change.
-        scope.launch {
-            settings.observe()
-                .map { it.analyticsEnabled }
-                .distinctUntilChanged()
-                .collect { AppMetrica.setDataSendingEnabled(it) }
-        }
+        AppMetrica.setDataSendingEnabled(true)
+        activated = true
     }
 
     override fun track(event: AnalyticsEvent) {
-        scope.launch {
-            if (!settings.observe().first().analyticsEnabled) return@launch
-            val attrs = attributes(event)
-            if (BuildConfig.DEBUG) Log.d(TAG, "${event.name} $attrs")
-            if (enabled) AppMetrica.reportEvent(event.name, attrs)
-        }
+        val attrs = attributes(event)
+        if (BuildConfig.DEBUG) Log.d(TAG, "${event.name} $attrs")
+        if (activated) AppMetrica.reportEvent(event.name, attrs)
     }
 
     private fun attributes(event: AnalyticsEvent): Map<String, Any> = when (event) {
