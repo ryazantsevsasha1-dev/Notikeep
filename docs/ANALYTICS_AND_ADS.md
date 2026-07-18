@@ -63,6 +63,28 @@
 
 Когда дойдёте до этого шага — скажите, подключу и сверстаю баннер.
 
+## Удалённое управление рекламой (Varioqub)
+
+Подключён Varioqub (remote config поверх AppMetrica): места и частоту рекламы можно
+менять из кабинета [varioqub.yandex.ru](https://varioqub.yandex.ru) **без выката обновления**.
+
+Настройка: в кабинете AppMetrica узнайте числовой ID приложения и пропишите в
+`local.properties`: `notikeep.varioqub.clientId=appmetrica.<ID>`. Пустой id = конфиг
+выключен, действуют дефолты из `AdsRemoteConfig`.
+
+Флаги (имена в кабинете должны совпадать):
+
+| Флаг | Тип | Дефолт | Что делает |
+|---|---|---|---|
+| `ads_banner_enabled` | bool | `true` | Баннер внизу «Архива» |
+| `ads_interstitial_enabled` | bool | `false` | Полноэкранная реклама (мастер-выключатель) |
+| `ads_interstitial_every_n` | long | `3` | Показывать на каждый N-й выход из списка уведомлений |
+| `ads_interstitial_min_interval_sec` | long | `180` | Минимальный интервал между показами, сек |
+
+Interstitial: блок `demo-interstitial-yandex` в debug; боевой id — `notikeep.ads.interstitialId`
+в `local.properties`. Показ — только на «естественной паузе» (возврат из списка уведомлений
+приложения в архив), через `InterstitialAdManager` с двойным капом (счётчик + кулдаун).
+
 ## Доход + аналитика вместе
 В кабинете AppMetrica включите интеграцию с РСЯ (Настройки приложения → Партнёры/Revenue) —
 доход от рекламы появится рядом с DAU/Retention, и будет видна «выручка на пользователя».

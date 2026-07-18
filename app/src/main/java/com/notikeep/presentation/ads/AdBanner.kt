@@ -9,8 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.notikeep.BuildConfig
+import com.notikeep.data.ads.AdsEntryPoint
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -25,9 +27,16 @@ import com.yandex.mobile.ads.common.ImpressionData
  *
  * The ad unit id comes from BuildConfig so debug uses the Yandex demo banner and
  * release uses the real block id (wired in build.gradle once you have it).
+ *
+ * The whole placement can be switched off remotely (Varioqub flag
+ * `ads_banner_enabled`) — checked once per composition, no update required.
  */
 @Composable
 fun AdBanner(modifier: Modifier = Modifier) {
+    val appContext = LocalContext.current.applicationContext
+    val adsConfig = remember { AdsEntryPoint.resolve(appContext).adsRemoteConfig() }
+    if (!adsConfig.bannerEnabled) return
+
     var visible by remember { mutableStateOf(true) }
     if (!visible) return
 
@@ -46,12 +55,18 @@ fun AdBanner(modifier: Modifier = Modifier) {
                     override fun onAdClicked() {}
                     override fun onLeftApplication() {}
                     override fun onReturnedToApplication() {}
-                    override fun onImpression(data: ImpressionData?) {}
+                    override fun onImpression(impressionData: ImpressionData?) {}
                 })
             }
             container.addView(banner)
             banner.loadAd(AdRequest.Builder().build())
             container
+        },
+        // Without an explicit destroy the SDK keeps the banner (and its WebView)
+        // alive after the slot leaves composition — a leak per navigation.
+        onRelease = { container ->
+            (container.getChildAt(0) as? BannerAdView)?.destroy()
+            container.removeAllViews()
         },
     )
 }

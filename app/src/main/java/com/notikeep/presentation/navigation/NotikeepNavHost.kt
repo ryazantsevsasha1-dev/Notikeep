@@ -27,9 +27,16 @@ import com.notikeep.presentation.settings.SettingsScreen
 /**
  * Top-level navigation. When onboarding is not done, it is the only destination;
  * once finished, the app switches to the three-tab shell (search lives in Archive).
+ *
+ * [onNaturalBreak] fires on natural pauses in the flow (leaving a per-app
+ * notification list) — the interstitial ad hook; whether an ad actually shows
+ * is decided remotely (see InterstitialAdManager).
  */
 @Composable
-fun NotikeepNavHost(onboardingCompleted: Boolean) {
+fun NotikeepNavHost(
+    onboardingCompleted: Boolean,
+    onNaturalBreak: () -> Unit = {},
+) {
     val navController = rememberNavController()
 
     if (!onboardingCompleted) {
@@ -99,7 +106,12 @@ fun NotikeepNavHost(onboardingCompleted: Boolean) {
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(DETAIL_SLIDE_MS))
                 },
             ) {
-                AppNotificationsScreen(onBack = { navController.popBackStack() })
+                AppNotificationsScreen(
+                    onBack = {
+                        navController.popBackStack()
+                        onNaturalBreak()
+                    },
+                )
             }
             composable(Routes.RULES) { RulesScreen() }
             composable(Routes.SETTINGS) { SettingsScreen() }

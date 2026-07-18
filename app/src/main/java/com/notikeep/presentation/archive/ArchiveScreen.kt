@@ -179,7 +179,16 @@ private fun DateRangeDialog(onConfirm: (Long?, Long?) -> Unit, onDismiss: () -> 
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.archive_date_cancel)) } },
     ) {
-        DateRangePicker(state = pickerState, modifier = Modifier.weight(1f))
+        // No title/headline/mode toggle: at large accessibility font scales the
+        // default headline ("Начальная дата — Конечная дата") wraps letter-by-letter
+        // and pushes the calendar off screen. The compact picker survives any scale.
+        DateRangePicker(
+            state = pickerState,
+            modifier = Modifier.weight(1f),
+            title = null,
+            headline = null,
+            showModeToggle = false,
+        )
     }
 }
 

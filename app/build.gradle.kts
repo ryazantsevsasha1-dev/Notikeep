@@ -42,6 +42,12 @@ android {
         // (notikeep.appmetrica.apiKey=...). Empty key = analytics stays local-only.
         val appMetricaKey = secretProp("notikeep.appmetrica.apiKey")
         buildConfigField("String", "APPMETRICA_API_KEY", "\"$appMetricaKey\"")
+
+        // Varioqub client id, format "appmetrica.<numeric AppMetrica app id>"
+        // (notikeep.varioqub.clientId=...). Empty = remote config off, built-in
+        // ad defaults apply.
+        val varioqubClientId = secretProp("notikeep.varioqub.clientId")
+        buildConfigField("String", "VARIOQUB_CLIENT_ID", "\"$varioqubClientId\"")
     }
 
     signingConfigs {
@@ -57,8 +63,9 @@ android {
 
     buildTypes {
         debug {
-            // Yandex demo banner — always fills, safe for development.
+            // Yandex demo blocks — always fill, safe for development.
             buildConfigField("String", "ADS_BANNER_UNIT_ID", "\"demo-banner-yandex\"")
+            buildConfigField("String", "ADS_INTERSTITIAL_UNIT_ID", "\"demo-interstitial-yandex\"")
         }
         release {
             isMinifyEnabled = true
@@ -69,11 +76,14 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // Real РСЯ block id from local.properties / CI (notikeep.ads.bannerId=...).
-            // Falls back to the demo banner until a real id is provided.
+            // Real РСЯ block ids from local.properties / CI (notikeep.ads.bannerId=...,
+            // notikeep.ads.interstitialId=...). Fall back to demo blocks until provided.
             val bannerId = secretProp("notikeep.ads.bannerId")
                 .takeIf { it.isNotBlank() } ?: "demo-banner-yandex"
             buildConfigField("String", "ADS_BANNER_UNIT_ID", "\"$bannerId\"")
+            val interstitialId = secretProp("notikeep.ads.interstitialId")
+                .takeIf { it.isNotBlank() } ?: "demo-interstitial-yandex"
+            buildConfigField("String", "ADS_INTERSTITIAL_UNIT_ID", "\"$interstitialId\"")
         }
     }
 
@@ -140,6 +150,10 @@ dependencies {
 
     // Yandex Mobile Ads (РСЯ)
     implementation(libs.yandex.mobileads)
+
+    // Varioqub remote config (ad toggles/frequency tunable without releasing)
+    implementation(libs.varioqub.config)
+    implementation(libs.varioqub.appmetrica)
 
     // Unit tests
     testImplementation(libs.junit)
